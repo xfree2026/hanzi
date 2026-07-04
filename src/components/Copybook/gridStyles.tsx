@@ -332,19 +332,28 @@ const bihuaChar: CharRenderer = (input, size, font, showPinyin, ox, oy) => {
   const drawSize = size - 2 * margin;
   const s = drawSize / 1024;
 
-  // 渲染前 strokeStep 笔
-  // 把 offsetX, offsetY 也结合到 transform 里
+  // 优化：将之前的所有笔画合并为一个 path，以减少 DOM 节点数量，防止海量 DOM 导致页面卡死
+  const previousStrokesD = strokePaths.slice(0, strokeStep - 1).join(" ");
+  const currentStrokeD = strokePaths[strokeStep - 1];
+
   return (
     <g>
-      {strokePaths.slice(0, strokeStep).map((pathD, i) => (
+      {previousStrokesD && (
         <path
-          key={i}
-          d={pathD}
-          fill={i === strokeStep - 1 ? BIHUA_CURRENT : BIHUA_DONE}
+          d={previousStrokesD}
+          fill={BIHUA_DONE}
           stroke="none"
           transform={`translate(${ox + margin}, ${oy + margin}) scale(${s}, ${-s}) translate(0, -900)`}
         />
-      ))}
+      )}
+      {currentStrokeD && (
+        <path
+          d={currentStrokeD}
+          fill={BIHUA_CURRENT}
+          stroke="none"
+          transform={`translate(${ox + margin}, ${oy + margin}) scale(${s}, ${-s}) translate(0, -900)`}
+        />
+      )}
     </g>
   );
 };
