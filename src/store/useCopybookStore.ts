@@ -43,6 +43,7 @@ interface CopybookState {
   setFont: (font: string) => void;
   togglePinyin: () => void;
   toggleTitle: () => void;
+  togglePunctuation: () => void;
   setEnableStroke: (val: boolean) => void;
   setBackgroundColor: (color: string | null) => void;
   setBihuaLimit: (n: number) => void;
@@ -74,6 +75,7 @@ const DEFAULT_CONFIG: CopybookConfig = {
   font: 'STKaiti, "KaiTi", "楷体", "Noto Serif SC", serif',
   showPinyin: false,
   showTitle: true,
+  includePunctuation: false,
   enableStroke: false,
   backgroundColor: null,
   bihuaLimit: 12,
@@ -189,6 +191,15 @@ export const useCopybookStore = create<CopybookState>((set, get) => ({
     set((s) => ({ config: { ...s.config, showPinyin: !s.config.showPinyin } })),
   toggleTitle: () =>
     set((s) => ({ config: { ...s.config, showTitle: !s.config.showTitle } })),
+  togglePunctuation: () => {
+    set((s) => ({
+      config: { ...s.config, includePunctuation: !s.config.includePunctuation },
+      currentPage: 0,
+    }));
+    if (get().config.enableStroke) {
+      get().loadStrokeData();
+    }
+  },
   setEnableStroke: (val) => {
     set((s) => ({ config: { ...s.config, enableStroke: val }, currentPage: 0 }));
     if (val) get().loadStrokeData();
@@ -253,12 +264,12 @@ export const useCopybookStore = create<CopybookState>((set, get) => ({
     })),
 
   loadStrokeData: async () => {
-    const { sourceText, bihuaLimit } = get().config;
+    const { sourceText, bihuaLimit, includePunctuation } = get().config;
     if (!sourceText) return;
 
     set({ strokeDataLoading: true });
     try {
-      const chars = extractHanzi(sourceText);
+      const chars = extractHanzi(sourceText, includePunctuation);
       const limit = bihuaLimit ?? 12;
       const charsToProcess = chars.slice(0, limit);
       

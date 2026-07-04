@@ -27,7 +27,7 @@ export function paginate(
   config: CopybookConfig,
   strokeDataMap?: Map<string, StrokeData>,
 ): CopybookPage[] {
-  const sourceChars = extractHanzi(config.sourceText);
+  const sourceChars = extractHanzi(config.sourceText, config.includePunctuation);
   const { charsPerRow, rowsPerPage, charset, layout, gridStyle } = config;
 
   // 预处理字符：每字生成 {简, 繁}

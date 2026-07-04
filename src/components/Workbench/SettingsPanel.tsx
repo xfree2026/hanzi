@@ -104,6 +104,7 @@ export default function SettingsPanel() {
   const setCellSize = useCopybookStore((s) => s.setCellSize);
   const setFont = useCopybookStore((s) => s.setFont);
   const toggleTitle = useCopybookStore((s) => s.toggleTitle);
+  const togglePunctuation = useCopybookStore((s) => s.togglePunctuation);
   const setBackgroundColor = useCopybookStore((s) => s.setBackgroundColor);
   const setCustomText = useCopybookStore((s) => s.setCustomText);
   const openAiDialog = useCopybookStore((s) => s.openAiDialog);
@@ -127,21 +128,13 @@ export default function SettingsPanel() {
           <textarea
             value={config.resourceId === null ? config.customText : ""}
             onChange={(e) => setCustomText(e.target.value)}
-            placeholder="粘贴自定义文本（仅汉字会被保留）"
+            placeholder="粘贴自定义文本（支持汉字和标点）"
             rows={3}
             className="w-full resize-none rounded-md border border-ink-200/70 bg-paper px-3 py-2 text-[12px] leading-relaxed text-ink-700 placeholder:text-ink-400 focus:border-aloes focus:outline-none focus:ring-1 focus:ring-aloes/40"
           />
           {config.resourceId === null && (
             <p className="mt-1 text-[10px] text-cinnabar-dark">
-              · 当前为自定义文本模式（共{" "}
-              {Array.from(config.sourceText).filter((c) => {
-                const code = c.codePointAt(0) ?? 0;
-                return (
-                  (code >= 0x4e00 && code <= 0x9fff) ||
-                  (code >= 0x3400 && code <= 0x4dbf)
-                );
-              }).length}{" "}
-              字）
+              · 当前为自定义文本模式
             </p>
           )}
         </section>
@@ -381,15 +374,26 @@ export default function SettingsPanel() {
           <h3 className="mb-2 flex items-center gap-1.5 text-[11px] uppercase tracking-[0.2em] text-aloes-deep">
             <Square className="h-3 w-3" /> 显示
           </h3>
-          <label className="flex cursor-pointer items-center justify-between rounded-md border border-ink-200/50 bg-paper/60 px-3 py-2">
-            <span className="text-[12px] text-ink-700">显示页眉标题</span>
-            <input
-              type="checkbox"
-              checked={config.showTitle}
-              onChange={toggleTitle}
-              className="h-4 w-4 accent-cinnabar"
-            />
-          </label>
+          <div className="grid grid-cols-2 gap-2">
+            <label className="flex cursor-pointer items-center justify-between rounded-md border border-ink-200/50 bg-paper/60 px-3 py-2">
+              <span className="text-[12px] text-ink-700">显示页眉标题</span>
+              <input
+                type="checkbox"
+                checked={config.showTitle}
+                onChange={toggleTitle}
+                className="h-4 w-4 accent-cinnabar"
+              />
+            </label>
+            <label className="flex cursor-pointer items-center justify-between rounded-md border border-ink-200/50 bg-paper/60 px-3 py-2">
+              <span className="text-[12px] text-ink-700">保留标点符号</span>
+              <input
+                type="checkbox"
+                checked={config.includePunctuation}
+                onChange={togglePunctuation}
+                className="h-4 w-4 accent-cinnabar"
+              />
+            </label>
+          </div>
 
           {/* 纸张背景色 */}
           <div>

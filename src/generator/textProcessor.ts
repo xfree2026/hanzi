@@ -15,11 +15,20 @@ export function isHanzi(ch: string): boolean {
   );
 }
 
-/** 提取全部汉字（去除标点、空格、换行），保持顺序 */
-export function extractHanzi(text: string): string[] {
+/** 常见的中英文标点符号正则表达式 */
+const PUNCTUATION_REGEX = /^[，。！？、：；“”‘’（）《》〈〉【】『』「」〔〕…—·,.!?:;"'()[\]{}]$/;
+
+export function isPunctuation(ch: string): boolean {
+  return PUNCTUATION_REGEX.test(ch);
+}
+
+/** 提取目标字符（汉字，可选择是否包含标点） */
+export function extractHanzi(text: string, includePunctuation: boolean = false): string[] {
   const result: string[] = [];
   for (const ch of text) {
-    if (isHanzi(ch)) result.push(ch);
+    if (isHanzi(ch) || (includePunctuation && isPunctuation(ch))) {
+      result.push(ch);
+    }
   }
   return result;
 }

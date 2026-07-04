@@ -60,6 +60,8 @@ export interface CopybookConfig {
   font: string;
   showPinyin: boolean;
   showTitle: boolean;
+  /** 是否保留标点符号 */
+  includePunctuation: boolean;
   /** 启用笔画展开模式 */
   enableStroke: boolean;
   /** 纸张背景色（null 表示白色/无背景色） */
