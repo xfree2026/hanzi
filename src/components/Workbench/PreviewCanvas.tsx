@@ -36,7 +36,7 @@ export default function PreviewCanvas() {
       </div>
 
       {/* 预览画布：渲染所有页面，可滚动查看 */}
-      <div className="relative flex-1 overflow-auto no-print">
+      <div className="relative flex-1 overflow-auto print:overflow-visible print:h-auto print:block">
         {loadError ? (
           <div className="flex h-full items-center justify-center text-cinnabar-dark">
             加载失败：{loadError}
@@ -46,9 +46,9 @@ export default function PreviewCanvas() {
             <div className="h-8 w-8 animate-spin rounded-full border-2 border-aloes/30 border-t-aloes" />
           </div>
         ) : (
-          <div className="flex flex-col items-center gap-8 px-6 py-8">
+          <div className="flex flex-col items-center gap-8 px-6 py-8 print:block print:gap-0 print:p-0">
             {pages.map((p) => (
-              <div key={p.index} className="w-full max-w-[820px]">
+              <div key={p.index} className="w-full max-w-[820px] print:w-auto print:max-w-none">
                 {/* 页码标签 */}
                 <div className="no-print mb-2 text-center text-[10px] text-ink-400">
                   第 {p.index + 1} / {pages.length} 页
