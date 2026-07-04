@@ -63,6 +63,8 @@ export interface CopybookConfig {
   showTitle: boolean;
   /** 纸张背景色（null 表示白色/无背景色） */
   backgroundColor: string | null;
+  /** 笔画模式字数限制，避免性能卡顿 */
+  bihuaLimit: number;
   illustration: {
     url: string | null;
     position: IllustrationPosition;

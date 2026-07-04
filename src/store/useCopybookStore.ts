@@ -43,6 +43,7 @@ interface CopybookState {
   togglePinyin: () => void;
   toggleTitle: () => void;
   setBackgroundColor: (color: string | null) => void;
+  setBihuaLimit: (n: number) => void;
   setCurrentPage: (n: number) => void;
   openResourceModal: (id: string) => void;
   closeResourceModal: () => void;
@@ -72,6 +73,7 @@ const DEFAULT_CONFIG: CopybookConfig = {
   showPinyin: false,
   showTitle: true,
   backgroundColor: null,
+  bihuaLimit: 12,
   illustration: { url: null, position: null },
 };
 
@@ -186,6 +188,11 @@ export const useCopybookStore = create<CopybookState>((set, get) => ({
     set((s) => ({ config: { ...s.config, showTitle: !s.config.showTitle } })),
   setBackgroundColor: (color) =>
     set((s) => ({ config: { ...s.config, backgroundColor: color } })),
+  setBihuaLimit: (n) =>
+    set((s) => ({
+      config: { ...s.config, bihuaLimit: Math.max(1, Math.min(200, n)) },
+      currentPage: 0,
+    })),
   setCurrentPage: (n) => set({ currentPage: Math.max(0, n) }),
 
   openResourceModal: (id) =>

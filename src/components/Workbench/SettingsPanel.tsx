@@ -187,9 +187,20 @@ export default function SettingsPanel() {
             })}
           </div>
           {config.gridStyle === "bihua" && (
-            <p className="mt-2 rounded-md border border-cinnabar/30 bg-cinnabar/5 px-2.5 py-1.5 text-[10px] leading-relaxed text-cinnabar-dark">
-              笔画模式：每个字按笔顺展开为多个字格，逐笔增加显示。当前笔用红色高亮，需联网加载笔画数据。
-            </p>
+            <div className="mt-2 space-y-2 rounded-md border border-cinnabar/30 bg-cinnabar/5 px-2.5 py-2">
+              <p className="text-[10px] leading-relaxed text-cinnabar-dark">
+                笔画模式：每个字按笔顺展开为多格。
+                当前笔用红色高亮，需联网加载数据。
+              </p>
+              <Slider
+                label="处理字数"
+                value={config.bihuaLimit ?? 12}
+                min={1}
+                max={100}
+                onChange={useCopybookStore((s) => s.setBihuaLimit)}
+                icon={<PencilLine className="h-3 w-3" />}
+              />
+            </div>
           )}
         </section>
 

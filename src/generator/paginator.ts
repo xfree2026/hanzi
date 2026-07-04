@@ -66,8 +66,11 @@ export function paginate(
     // 笔画模式：每个字展开为 strokeCount + 1 个格子
     // 生成扁平化的 Cell 列表，再按行列分页
     const expandedCells: Cell[] = [];
-    for (let i = 0; i < chars.length; i++) {
-      const ch = chars[i];
+    const limit = config.bihuaLimit ?? 12;
+    const charsToProcess = chars.slice(0, limit);
+    
+    for (let i = 0; i < charsToProcess.length; i++) {
+      const ch = charsToProcess[i];
       const displayChar =
         charset === "traditional"
           ? ch.traditional || ch.simplified
