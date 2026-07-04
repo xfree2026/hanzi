@@ -138,7 +138,7 @@ const tianDefs: DefsRenderer = (size, id) => (
 );
 
 const tianBackground: BackgroundRenderer = (size, ox, oy, id) => (
-  <use href={`#grid-${id}`} x={ox} y={oy} />
+  <use href={`#grid-${id}`} transform={`translate(${ox}, ${oy})`} />
 );
 
 const miDefs: DefsRenderer = (size, id) => (
@@ -196,7 +196,7 @@ const miDefs: DefsRenderer = (size, id) => (
 );
 
 const miBackground: BackgroundRenderer = (size, ox, oy, id) => (
-  <use href={`#grid-${id}`} x={ox} y={oy} />
+  <use href={`#grid-${id}`} transform={`translate(${ox}, ${oy})`} />
 );
 
 const jiugongDefs: DefsRenderer = (size, id) => {
@@ -263,7 +263,7 @@ const jiugongDefs: DefsRenderer = (size, id) => {
 };
 
 const jiugongBackground: BackgroundRenderer = (size, ox, oy, id) => (
-  <use href={`#grid-${id}`} x={ox} y={oy} />
+  <use href={`#grid-${id}`} transform={`translate(${ox}, ${oy})`} />
 );
 
 // ===== 字模渲染 =====
