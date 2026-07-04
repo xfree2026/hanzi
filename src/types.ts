@@ -121,12 +121,14 @@ export interface GridStyle {
   name: string;
   description: string;
   /** 渲染字格底纹（位于每个字格内） */
-  renderBackground: (size: number) => JSX.Element;
+  renderBackground: (size: number, offsetX: number, offsetY: number) => JSX.Element;
   /** 渲染字模 */
   renderChar: (
     input: CharRenderInput,
     size: number,
     font: string,
     showPinyin: boolean,
+    offsetX: number,
+    offsetY: number,
   ) => JSX.Element;
 }

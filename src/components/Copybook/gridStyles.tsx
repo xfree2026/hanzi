@@ -28,23 +28,23 @@ const BIHUA_DONE = "rgba(31, 28, 24, 0.75)";
 const BIHUA_CURRENT = "rgba(192, 57, 43, 0.85)";
 
 interface BackgroundRenderer {
-  (size: number): JSX.Element;
+  (size: number, ox: number, oy: number): JSX.Element;
 }
 
 interface CharRenderer {
-  (input: CharRenderInput, size: number, font: string, showPinyin: boolean): JSX.Element;
+  (input: CharRenderInput, size: number, font: string, showPinyin: boolean, ox: number, oy: number): JSX.Element;
 }
 
 // ===== 底纹渲染 =====
 
 const blankBackground: BackgroundRenderer = () => <></>;
 
-const tianBackground: BackgroundRenderer = (size) => (
+const tianBackground: BackgroundRenderer = (size, ox, oy) => (
   <g>
     {/* 外框 */}
     <rect
-      x={0}
-      y={0}
+      x={ox}
+      y={oy}
       width={size}
       height={size}
       stroke={GRID_STROKE}
@@ -53,20 +53,20 @@ const tianBackground: BackgroundRenderer = (size) => (
     />
     {/* 中线（虚线） */}
     <line
-      x1={size / 2}
-      y1={0}
-      x2={size / 2}
-      y2={size}
+      x1={ox + size / 2}
+      y1={oy}
+      x2={ox + size / 2}
+      y2={oy + size}
       stroke={GRID_MI_STROKE}
       fill="none"
       strokeWidth={0.8}
       strokeDasharray="3 3"
     />
     <line
-      x1={0}
-      y1={size / 2}
-      x2={size}
-      y2={size / 2}
+      x1={ox}
+      y1={oy + size / 2}
+      x2={ox + size}
+      y2={oy + size / 2}
       stroke={GRID_MI_STROKE}
       fill="none"
       strokeWidth={0.8}
@@ -75,11 +75,11 @@ const tianBackground: BackgroundRenderer = (size) => (
   </g>
 );
 
-const miBackground: BackgroundRenderer = (size) => (
+const miBackground: BackgroundRenderer = (size, ox, oy) => (
   <g>
     <rect
-      x={0}
-      y={0}
+      x={ox}
+      y={oy}
       width={size}
       height={size}
       stroke={GRID_STROKE}
@@ -88,20 +88,20 @@ const miBackground: BackgroundRenderer = (size) => (
     />
     {/* 十字中线 */}
     <line
-      x1={size / 2}
-      y1={0}
-      x2={size / 2}
-      y2={size}
+      x1={ox + size / 2}
+      y1={oy}
+      x2={ox + size / 2}
+      y2={oy + size}
       stroke={GRID_MI_STROKE}
       fill="none"
       strokeWidth={0.7}
       strokeDasharray="2 3"
     />
     <line
-      x1={0}
-      y1={size / 2}
-      x2={size}
-      y2={size / 2}
+      x1={ox}
+      y1={oy + size / 2}
+      x2={ox + size}
+      y2={oy + size / 2}
       stroke={GRID_MI_STROKE}
       fill="none"
       strokeWidth={0.7}
@@ -109,20 +109,20 @@ const miBackground: BackgroundRenderer = (size) => (
     />
     {/* 对角线 */}
     <line
-      x1={0}
-      y1={0}
-      x2={size}
-      y2={size}
+      x1={ox}
+      y1={oy}
+      x2={ox + size}
+      y2={oy + size}
       stroke={GRID_MI_STROKE}
       fill="none"
       strokeWidth={0.6}
       strokeDasharray="2 3"
     />
     <line
-      x1={size}
-      y1={0}
-      x2={0}
-      y2={size}
+      x1={ox + size}
+      y1={oy}
+      x2={ox}
+      y2={oy + size}
       stroke={GRID_MI_STROKE}
       fill="none"
       strokeWidth={0.6}
@@ -131,13 +131,13 @@ const miBackground: BackgroundRenderer = (size) => (
   </g>
 );
 
-const jiugongBackground: BackgroundRenderer = (size) => {
+const jiugongBackground: BackgroundRenderer = (size, ox, oy) => {
   const step = size / 3;
   return (
     <g>
       <rect
-        x={0}
-        y={0}
+        x={ox}
+        y={oy}
         width={size}
         height={size}
         stroke={GRID_STROKE}
@@ -147,10 +147,10 @@ const jiugongBackground: BackgroundRenderer = (size) => {
       {[1, 2].map((i) => (
         <line
           key={`v${i}`}
-          x1={step * i}
-          y1={0}
-          x2={step * i}
-          y2={size}
+          x1={ox + step * i}
+          y1={oy}
+          x2={ox + step * i}
+          y2={oy + size}
           stroke={GRID_MI_STROKE}
           fill="none"
           strokeWidth={0.7}
@@ -160,10 +160,10 @@ const jiugongBackground: BackgroundRenderer = (size) => {
       {[1, 2].map((i) => (
         <line
           key={`h${i}`}
-          x1={0}
-          y1={step * i}
-          x2={size}
-          y2={step * i}
+          x1={ox}
+          y1={oy + step * i}
+          x2={ox + size}
+          y2={oy + step * i}
           stroke={GRID_MI_STROKE}
           fill="none"
           strokeWidth={0.7}
@@ -172,20 +172,20 @@ const jiugongBackground: BackgroundRenderer = (size) => {
       ))}
       {/* 中心米字辅助 */}
       <line
-        x1={size / 2}
-        y1={0}
-        x2={size / 2}
-        y2={size}
+        x1={ox + size / 2}
+        y1={oy}
+        x2={ox + size / 2}
+        y2={oy + size}
         stroke={GRID_MI_STROKE}
         fill="none"
         strokeWidth={0.5}
         strokeDasharray="1 4"
       />
       <line
-        x1={0}
-        y1={size / 2}
-        x2={size}
-        y2={size / 2}
+        x1={ox}
+        y1={oy + size / 2}
+        x2={ox + size}
+        y2={oy + size / 2}
         stroke={GRID_MI_STROKE}
         fill="none"
         strokeWidth={0.5}
@@ -223,14 +223,16 @@ function renderSingleText(
   centerX: number,
   centerY: number,
   availSize: number,
+  ox: number,
+  oy: number,
   scale = 0.78,
 ) {
   if (!char) return null;
   const fontSize = availSize * scale;
   return (
     <text
-      x={centerX}
-      y={centerY + fontSize * 0.36}
+      x={ox + centerX}
+      y={oy + centerY + fontSize * 0.36}
       textAnchor="middle"
       fontFamily={font}
       fontSize={fontSize}
@@ -249,14 +251,16 @@ function renderStrokeText(
   centerX: number,
   centerY: number,
   availSize: number,
+  ox: number,
+  oy: number,
   scale = 0.78,
 ) {
   if (!char) return null;
   const fontSize = availSize * scale;
   return (
     <text
-      x={centerX}
-      y={centerY + fontSize * 0.36}
+      x={ox + centerX}
+      y={oy + centerY + fontSize * 0.36}
       textAnchor="middle"
       fontFamily={font}
       fontSize={fontSize}
@@ -272,7 +276,7 @@ function renderStrokeText(
 
 const blankChar: CharRenderer = () => <></>;
 
-const shixinChar: CharRenderer = (input, size, font) => {
+const shixinChar: CharRenderer = (input, size, font, showPinyin, ox, oy) => {
   const ch = pickDisplayChar(input);
   return renderSingleText(
     ch,
@@ -282,10 +286,12 @@ const shixinChar: CharRenderer = (input, size, font) => {
     size / 2,
     size / 2,
     size,
+    ox,
+    oy,
   ) as unknown as JSX.Element;
 };
 
-const miaohongChar: CharRenderer = (input, size, font) => {
+const miaohongChar: CharRenderer = (input, size, font, showPinyin, ox, oy) => {
   const ch = pickDisplayChar(input);
   return renderSingleText(
     ch,
@@ -295,12 +301,14 @@ const miaohongChar: CharRenderer = (input, size, font) => {
     size / 2,
     size / 2,
     size,
+    ox,
+    oy,
   ) as unknown as JSX.Element;
 };
 
-const lunkuoChar: CharRenderer = (input, size, font) => {
+const lunkuoChar: CharRenderer = (input, size, font, showPinyin, ox, oy) => {
   const ch = pickDisplayChar(input);
-  return renderStrokeText(ch, size, font, size / 2, size / 2, size) as unknown as JSX.Element;
+  return renderStrokeText(ch, size, font, size / 2, size / 2, size, ox, oy) as unknown as JSX.Element;
 };
 
 // ===== 笔画模式渲染 =====
@@ -311,7 +319,7 @@ const lunkuoChar: CharRenderer = (input, size, font) => {
  * 坐标系转换：原始数据 1024×1024，Y轴向上，范围 (0,-124)→(1024,900)
  * 转换到 cellSize×cellSize 的 SVG 坐标系（Y轴向下）。
  */
-const bihuaChar: CharRenderer = (input, size) => {
+const bihuaChar: CharRenderer = (input, size, font, showPinyin, ox, oy) => {
   const { strokePaths, strokeStep, strokeTotal } = input;
 
   // 无笔画数据时回退为空
@@ -325,6 +333,7 @@ const bihuaChar: CharRenderer = (input, size) => {
   const s = drawSize / 1024;
 
   // 渲染前 strokeStep 笔
+  // 把 offsetX, offsetY 也结合到 transform 里
   return (
     <g>
       {strokePaths.slice(0, strokeStep).map((pathD, i) => (
@@ -333,7 +342,7 @@ const bihuaChar: CharRenderer = (input, size) => {
           d={pathD}
           fill={i === strokeStep - 1 ? BIHUA_CURRENT : BIHUA_DONE}
           stroke="none"
-          transform={`translate(${margin}, ${margin}) scale(${s}, ${-s}) translate(0, -900)`}
+          transform={`translate(${ox + margin}, ${oy + margin}) scale(${s}, ${-s}) translate(0, -900)`}
         />
       ))}
     </g>
@@ -344,6 +353,13 @@ const bihuaChar: CharRenderer = (input, size) => {
 // 字格底纹与字模可任意组合，这里提供常用预设。
 
 export const GRID_STYLES: GridStyle[] = [
+  {
+    id: "bihua",
+    name: "★ 笔画展开",
+    description: "按笔顺逐笔显示，每字按笔画展开为多格。",
+    renderBackground: miBackground,
+    renderChar: bihuaChar,
+  },
   {
     id: "tian",
     name: "田字格 · 实心字",
@@ -393,15 +409,8 @@ export const GRID_STYLES: GridStyle[] = [
     renderBackground: miBackground,
     renderChar: blankChar,
   },
-  {
-    id: "bihua",
-    name: "米字格 · 笔画",
-    description: "米字格 + 笔顺逐笔显示，每字按笔画展开为多格。",
-    renderBackground: miBackground,
-    renderChar: bihuaChar,
-  },
 ];
 
 export function getGridStyle(id: GridStyleId): GridStyle {
-  return GRID_STYLES.find((s) => s.id === id) ?? GRID_STYLES[0];
+  return GRID_STYLES.find((s) => s.id === id) ?? GRID_STYLES[1]; // 默认 tian
 }

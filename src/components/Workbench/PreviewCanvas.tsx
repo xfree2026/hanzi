@@ -36,7 +36,7 @@ export default function PreviewCanvas() {
       </div>
 
       {/* 预览画布：渲染所有页面，可滚动查看 */}
-      <div className="relative flex-1 overflow-auto">
+      <div className="relative flex-1 overflow-auto no-print">
         {loadError ? (
           <div className="flex h-full items-center justify-center text-cinnabar-dark">
             加载失败：{loadError}

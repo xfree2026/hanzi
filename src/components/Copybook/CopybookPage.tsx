@@ -50,14 +50,15 @@ export default function CopybookPageView({
 
     // 根据内容尺寸计算 A4 比例的 viewBox
     // 以内容的宽或高为基准，取较大的那个以确保内容不超出
+    // 为避免浏览器的物理不可打印区域截断页眉页脚，留出充足的最小边距 (96px)
     let w: number, h: number;
     if (contentW / contentH > a4Ratio) {
       // 内容偏宽：以宽度为基准
-      w = contentW + 48; // 最小左右边距 24px
+      w = contentW + 96; 
       h = w / a4Ratio;
     } else {
       // 内容偏高：以高度为基准
-      h = contentH + 48; // 最小上下边距 24px
+      h = contentH + 96; 
       w = h * a4Ratio;
     }
 
@@ -89,8 +90,8 @@ export default function CopybookPageView({
     const bgRect =
       bilingualDisplay === "traditional" ? (
         <rect
-          x={0}
-          y={0}
+          x={x}
+          y={y}
           width={cellSize}
           height={cellSize}
           fill="rgba(176, 141, 87, 0.10)"
@@ -105,10 +106,11 @@ export default function CopybookPageView({
     const strokeData = strokeDataMap?.get(displayChar);
     const strokePaths = strokeData?.strokes;
 
+    // 不再使用 <g transform> 以避免在打印模式下因渲染引擎 Bug 导致坐标失效，直接使用绝对坐标
     return (
-      <g key={`${rowIdx}-${colIdx}`} transform={`translate(${x}, ${y})`}>
+      <g key={`${rowIdx}-${colIdx}`}>
         {bgRect}
-        {gridStyle.renderBackground(cellSize)}
+        {gridStyle.renderBackground(cellSize, x, y)}
         {gridStyle.renderChar(
           {
             simplified: char,
@@ -123,6 +125,8 @@ export default function CopybookPageView({
           cellSize,
           config.font,
           config.showPinyin,
+          x,
+          y
         )}
       </g>
     );

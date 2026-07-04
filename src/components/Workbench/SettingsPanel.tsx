@@ -117,7 +117,7 @@ export default function SettingsPanel() {
         <p className="mt-0.5 text-[11px] text-ink-500">字格 · 版式 · 规格</p>
       </div>
 
-      <div className="space-y-6 px-5 py-4">
+      <div className="space-y-6 px-5 py-4 pb-12">
         {/* 自定义文本 */}
         <section>
           <h3 className="mb-2 flex items-center gap-1.5 text-[11px] uppercase tracking-[0.2em] text-aloes-deep">
