@@ -245,7 +245,7 @@ export default function CopybookPageView({
           <image
             href={config.illustration.url}
             x={padX}
-            y={vbHeight - footerH - 2}
+            y={vbHeight - footerH - 24}
             width={120}
             height={footerH}
             preserveAspectRatio="xMidYMid meet"
@@ -271,7 +271,7 @@ export default function CopybookPageView({
       {/* 页脚 */}
       <text
         x={padX}
-        y={vbHeight - 10}
+        y={vbHeight - 28}
         fontSize={11}
         fill="rgba(31,28,24,0.45)"
       >
@@ -279,7 +279,7 @@ export default function CopybookPageView({
       </text>
       <text
         x={vbWidth - padX}
-        y={vbHeight - 10}
+        y={vbHeight - 28}
         textAnchor="end"
         fontSize={11}
         fill="rgba(31,28,24,0.45)"

@@ -18,6 +18,74 @@ import type { CharRenderInput, GridStyle, GridStyleId } from "@/types";
  * 所有 SVG 属性均使用内联样式，确保打印时样式一致。
  */
 
+/**
+ * 将 SVG Path 数据进行数学矩阵变换。
+ * 这相当于 transform="translate(dx, dy) scale(s, -s) translate(0, -900)"
+ * 但为了避免打印机驱动/浏览器打印引擎对 <g transform> 的各种 Bug，
+ * 我们在 JS 侧直接计算出绝对坐标，从而输出纯净的绝对坐标 <path d="...">。
+ */
+function transformPath(path: string, dx: number, dy: number, s: number): string {
+  const regex = /([a-zA-Z])|([-+]?(?:\d*\.\d+|\d+)(?:[eE][-+]?\d+)?)/g;
+  let match;
+  let result = "";
+  let cmd = "";
+  let args: number[] = [];
+  
+  while ((match = regex.exec(path))) {
+    if (match[1]) {
+      if (cmd) result += processCommand(cmd, args, dx, dy, s) + " ";
+      cmd = match[1];
+      args = [];
+    } else if (match[2]) {
+      args.push(parseFloat(match[2]));
+    }
+  }
+  if (cmd) result += processCommand(cmd, args, dx, dy, s);
+  return result.trim();
+}
+
+function processCommand(cmd: string, args: number[], dx: number, dy: number, s: number): string {
+  const c = cmd.toUpperCase();
+  if (c === "Z") return cmd;
+
+  let res = cmd + " ";
+  const isRel = cmd.toLowerCase() === cmd;
+
+  if (c === "H") {
+    for (let i = 0; i < args.length; i++) {
+      res += (isRel ? args[i] * s : dx + args[i] * s).toFixed(2) + " ";
+    }
+    return res.trim();
+  }
+  if (c === "V") {
+    for (let i = 0; i < args.length; i++) {
+      res += (isRel ? args[i] * -s : dy + (900 - args[i]) * s).toFixed(2) + " ";
+    }
+    return res.trim();
+  }
+  if (c === "A") {
+    for (let i = 0; i < args.length; i += 7) {
+      const rx = (args[i] * s).toFixed(2);
+      const ry = (args[i + 1] * s).toFixed(2);
+      const rot = -args[i + 2];
+      const large = args[i + 3];
+      const sweep = args[i + 4] === 1 ? 0 : 1;
+      const x = (isRel ? args[i + 5] * s : dx + args[i + 5] * s).toFixed(2);
+      const y = (isRel ? args[i + 6] * -s : dy + (900 - args[i + 6]) * s).toFixed(2);
+      res += `${rx} ${ry} ${rot} ${large} ${sweep} ${x} ${y} `;
+    }
+    return res.trim();
+  }
+
+  // M, L, T, Q, S, C
+  for (let i = 0; i < args.length; i += 2) {
+    const x = isRel ? args[i] * s : dx + args[i] * s;
+    const y = isRel ? args[i + 1] * -s : dy + (900 - args[i + 1]) * s;
+    res += `${x.toFixed(2)} ${y.toFixed(2)} `;
+  }
+  return res.trim();
+}
+
 // ===== 颜色常量（内联使用，避免依赖 CSS 类） =====
 const GRID_STROKE = "rgba(176, 141, 87, 0.55)";
 const GRID_MI_STROKE = "rgba(176, 141, 87, 0.35)";
@@ -331,6 +399,8 @@ export const bihuaChar: CharRenderer = (input, size, font, showPinyin, ox, oy) =
   const margin = size * 0.08;
   const drawSize = size - 2 * margin;
   const s = drawSize / 1024;
+  const dx = ox + margin;
+  const dy = oy + margin;
 
   // 优化：将之前的所有笔画合并为一个 path，以减少 DOM 节点数量，防止海量 DOM 导致页面卡死
   const previousStrokesD = strokePaths.slice(0, strokeStep - 1).join(" ");
@@ -340,18 +410,16 @@ export const bihuaChar: CharRenderer = (input, size, font, showPinyin, ox, oy) =
     <g>
       {previousStrokesD && (
         <path
-          d={previousStrokesD}
+          d={transformPath(previousStrokesD, dx, dy, s)}
           fill={BIHUA_DONE}
           stroke="none"
-          transform={`translate(${ox + margin}, ${oy + margin}) scale(${s}, ${-s}) translate(0, -900)`}
         />
       )}
       {currentStrokeD && (
         <path
-          d={currentStrokeD}
+          d={transformPath(currentStrokeD, dx, dy, s)}
           fill={BIHUA_CURRENT}
           stroke="none"
-          transform={`translate(${ox + margin}, ${oy + margin}) scale(${s}, ${-s}) translate(0, -900)`}
         />
       )}
     </g>
