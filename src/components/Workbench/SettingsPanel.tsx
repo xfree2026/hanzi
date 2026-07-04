@@ -153,7 +153,7 @@ export default function SettingsPanel() {
                   key={s.id}
                   onClick={() => setGridStyle(s.id)}
                   className={cn(
-                    "flex items-start gap-2 rounded-md border px-2.5 py-2 text-left transition",
+                    "flex flex-col items-start gap-1.5 rounded-md border px-3 py-2.5 text-left transition",
                     active
                       ? "border-cinnabar/50 bg-cinnabar/5"
                       : "border-ink-200/50 bg-paper/60 hover:border-aloes/50",
@@ -161,21 +161,18 @@ export default function SettingsPanel() {
                 >
                   <span
                     className={cn(
-                      "mt-0.5",
                       active ? "text-cinnabar" : "text-ink-400",
                     )}
                   >
                     {GRID_ICONS[s.id]}
                   </span>
-                  <div className="min-w-0">
-                    <div
-                      className={cn(
-                        "text-[12px] leading-tight break-keep",
-                        active ? "text-cinnabar-dark" : "text-ink-800",
-                      )}
-                    >
-                      {s.name}
-                    </div>
+                  <div
+                    className={cn(
+                      "text-[12px] leading-snug whitespace-nowrap",
+                      active ? "text-cinnabar-dark" : "text-ink-800",
+                    )}
+                  >
+                    {s.name}
                   </div>
                 </button>
               );
