@@ -12,7 +12,8 @@ import type { CharRenderInput, GridStyle, GridStyleId } from "@/types";
  *
  * 字符集模式支持：
  *   - auto / simplified / traditional：单字模渲染
- *   - bilingual：字格分为上下两半，上方简体、下方繁体，中间以细线分隔
+ *   - bilingual：每个字占一个完整字格，由分页算法决定该格显示简还是繁
+ *     （横排：行交替简繁；竖排：列交替简繁），繁体格背景色微调以示区分
  */
 
 interface BackgroundRenderer {
@@ -174,12 +175,17 @@ const jiugongBackground: BackgroundRenderer = (size) => {
 
 /** 决定单字模模式下显示哪个字（简/繁） */
 function pickDisplayChar(input: CharRenderInput): string {
+  // bilingual 模式下，按字格归属显示简或繁（整格居中，不再分半）
+  if (input.charset === "bilingual") {
+    return input.bilingualDisplay === "traditional"
+      ? input.traditional || input.simplified
+      : input.simplified || input.traditional;
+  }
   switch (input.charset) {
     case "traditional":
       return input.traditional || input.simplified;
     case "simplified":
     case "auto":
-    case "bilingual":
     default:
       return input.simplified || input.traditional;
   }
@@ -240,91 +246,9 @@ function renderStrokeText(
   );
 }
 
-/**
- * 计算简繁对照模式下两个字模的中心坐标与可用尺寸。
- * - 横排（horizontal-lr）：上下分半，上简下繁
- * - 竖排（vertical-rl）：左右分半，右简左繁（符合竖排右→左阅读顺序）
- */
-function getBilingualLayout(
-  size: number,
-  layout: "horizontal-lr" | "vertical-rl",
-) {
-  const half = size / 2;
-  if (layout === "vertical-rl") {
-    return {
-      simp: { centerX: size * 0.75, centerY: size / 2, avail: half },
-      trad: { centerX: size * 0.25, centerY: size / 2, avail: half },
-    };
-  }
-  return {
-    simp: { centerX: size / 2, centerY: size * 0.25, avail: half },
-    trad: { centerX: size / 2, centerY: size * 0.75, avail: half },
-  };
-}
-
-/** 简繁对照分隔线（横排为水平线、竖排为垂直线） */
-function bilingualDivider(
-  size: number,
-  layout: "horizontal-lr" | "vertical-rl",
-  color: string,
-) {
-  if (layout === "vertical-rl") {
-    return (
-      <line
-        x1={size / 2}
-        y1={4}
-        x2={size / 2}
-        y2={size - 4}
-        stroke={color}
-        strokeWidth={0.8}
-        strokeDasharray="2 2"
-      />
-    );
-  }
-  return (
-    <line
-      x1={4}
-      y1={size / 2}
-      x2={size - 4}
-      y2={size / 2}
-      stroke={color}
-      strokeWidth={0.8}
-      strokeDasharray="2 2"
-    />
-  );
-}
-
 const blankChar: CharRenderer = () => <></>;
 
 const shixinChar: CharRenderer = (input, size, font) => {
-  if (input.charset === "bilingual") {
-    const { simp, trad } = getBilingualLayout(size, input.layout);
-    return (
-      <g>
-        {renderSingleText(
-          input.simplified,
-          size,
-          font,
-          "cell-char-shixin",
-          simp.centerX,
-          simp.centerY,
-          simp.avail,
-          0.7,
-        )}
-        {renderSingleText(
-          input.traditional,
-          size,
-          font,
-          "cell-char-shixin",
-          trad.centerX,
-          trad.centerY,
-          trad.avail,
-          0.7,
-        )}
-        {bilingualDivider(size, input.layout, "rgba(192,57,43,0.45)")}
-      </g>
-    ) as unknown as JSX.Element;
-  }
   const ch = pickDisplayChar(input);
   return renderSingleText(
     ch,
@@ -338,34 +262,6 @@ const shixinChar: CharRenderer = (input, size, font) => {
 };
 
 const miaohongChar: CharRenderer = (input, size, font) => {
-  if (input.charset === "bilingual") {
-    const { simp, trad } = getBilingualLayout(size, input.layout);
-    return (
-      <g>
-        {renderSingleText(
-          input.simplified,
-          size,
-          font,
-          "cell-char-miaohong",
-          simp.centerX,
-          simp.centerY,
-          simp.avail,
-          0.7,
-        )}
-        {renderSingleText(
-          input.traditional,
-          size,
-          font,
-          "cell-char-miaohong",
-          trad.centerX,
-          trad.centerY,
-          trad.avail,
-          0.7,
-        )}
-        {bilingualDivider(size, input.layout, "rgba(192,57,43,0.45)")}
-      </g>
-    ) as unknown as JSX.Element;
-  }
   const ch = pickDisplayChar(input);
   return renderSingleText(
     ch,
@@ -379,32 +275,6 @@ const miaohongChar: CharRenderer = (input, size, font) => {
 };
 
 const lunkuoChar: CharRenderer = (input, size, font) => {
-  if (input.charset === "bilingual") {
-    const { simp, trad } = getBilingualLayout(size, input.layout);
-    return (
-      <g>
-        {renderStrokeText(
-          input.simplified,
-          size,
-          font,
-          simp.centerX,
-          simp.centerY,
-          simp.avail,
-          0.7,
-        )}
-        {renderStrokeText(
-          input.traditional,
-          size,
-          font,
-          trad.centerX,
-          trad.centerY,
-          trad.avail,
-          0.7,
-        )}
-        {bilingualDivider(size, input.layout, "rgba(31,28,24,0.3)")}
-      </g>
-    ) as unknown as JSX.Element;
-  }
   const ch = pickDisplayChar(input);
   return renderStrokeText(ch, size, font, size / 2, size / 2, size) as unknown as JSX.Element;
 };

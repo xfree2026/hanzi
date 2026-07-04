@@ -241,7 +241,7 @@ export default function SettingsPanel() {
                 {
                   id: "bilingual",
                   label: "简繁对照",
-                  hint: "上简 · 下繁",
+                  hint: "行/列交替",
                 },
               ] as { id: CharsetMode; label: string; hint: string }[]
             ).map((opt) => {
@@ -272,7 +272,7 @@ export default function SettingsPanel() {
           </div>
           {config.charset === "bilingual" && (
             <p className="mt-2 rounded-md border border-aloes/30 bg-aloes/5 px-2.5 py-1.5 text-[10px] leading-relaxed text-aloes-deep">
-              对照模式：字格上下分半，上半简体、下半繁体，红色虚线分隔，便于对照临摹。
+              对照模式：每个字占一整格，横排按行交替（简行/繁行），竖排按列交替（简列右、繁列左），繁体格背景色微调以示区分。
             </p>
           )}
         </section>

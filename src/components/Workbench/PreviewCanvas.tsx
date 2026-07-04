@@ -30,7 +30,7 @@ export default function PreviewCanvas() {
       {/* 顶部页码工具 */}
       <div className="no-print flex items-center justify-between border-b border-ink-200/50 bg-paper/70 px-6 py-2 backdrop-blur">
         <span className="text-[11px] text-ink-500">
-          {loadingResource ? "正在加载资源…" : `共 ${pages.length} 页`}
+          {loadingResource ? "正在加载资源…" : `共 ${pages.length} 页 · 每页 A4`}
         </span>
         <div className="flex items-center gap-2">
           <button
@@ -53,7 +53,7 @@ export default function PreviewCanvas() {
         </div>
       </div>
 
-      {/* 预览画布 */}
+      {/* 预览画布：仅渲染当前页 */}
       <div className="relative flex-1 overflow-auto">
         {loadError ? (
           <div className="flex h-full items-center justify-center text-cinnabar-dark">
@@ -64,23 +64,30 @@ export default function PreviewCanvas() {
             <div className="h-8 w-8 animate-spin rounded-full border-2 border-aloes/30 border-t-aloes" />
           </div>
         ) : (
-          <div className="flex flex-col items-center gap-8 px-6 py-8">
-            {pages.map((p) => (
-              <div
-                key={p.index}
-                className="print-page w-fit overflow-hidden rounded-sm border border-ink-200/40 bg-white shadow-paper"
-              >
-                <CopybookPageView page={p} config={config} title={title} />
-              </div>
-            ))}
+          <div className="flex flex-col items-center px-6 py-8">
+            {/* 当前预览页：A4 比例容器，让用户直观看到打印效果 */}
+            <div className="preview-page no-print aspect-[210/297] w-full max-w-[820px] overflow-hidden rounded-sm border border-ink-200/40 bg-white shadow-paper">
+              <CopybookPageView page={page} config={config} title={title} responsive />
+            </div>
           </div>
         )}
+      </div>
+
+      {/* 隐藏的打印区：渲染所有页，每页一个 A4 物理容器；@media print 时显示 */}
+      <div className="print-layout hidden">
+        {pages.map((p) => (
+          <div key={p.index} className="print-page">
+            <div className="print-page-inner">
+              <CopybookPageView page={p} config={config} title={title} responsive />
+            </div>
+          </div>
+        ))}
       </div>
 
       {/* 当前页提示（非打印） */}
       {!loadingResource && !loadError && (
         <div className="no-print pointer-events-none absolute bottom-4 right-6 rounded-full bg-ink-900/70 px-3 py-1 text-[11px] text-paper backdrop-blur">
-          当前预览第 {safePageIdx + 1} 页 · 滚动查看全部
+          当前预览第 {safePageIdx + 1} 页 · 点击打印可导出全部 {pages.length} 页
         </div>
       )}
     </main>
