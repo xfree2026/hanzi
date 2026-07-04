@@ -97,26 +97,20 @@ body {
     display: none !important;
   }
 
-  /* 隐藏预览页 */
-  .preview-page {
-    display: none !important;
-  }
-
-  /* 显示打印区 */
-  .print-layout {
-    display: block !important;
-  }
-
   /* 每个 .print-page = 一张 A4 纸，无额外 padding（SVG 内部已有边距） */
   .print-page {
-    width: 210mm;
-    height: 297mm;
-    padding: 0;
+    width: 210mm !important;
+    height: 297mm !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
     box-sizing: border-box;
     page-break-after: always;
     break-after: page;
     overflow: hidden;
-    background: #fff;
+    background: #fff !important;
   }
   .print-page:last-child {
     page-break-after: auto;

@@ -127,8 +127,10 @@ export interface GridStyle {
   id: GridStyleId;
   name: string;
   description: string;
+  /** 渲染 SVG Defs（可选，用于性能优化，只渲染一次） */
+  renderDefs?: (size: number, id: string) => JSX.Element;
   /** 渲染字格底纹（位于每个字格内） */
-  renderBackground: (size: number, offsetX: number, offsetY: number) => JSX.Element;
+  renderBackground: (size: number, offsetX: number, offsetY: number, id: string) => JSX.Element;
   /** 渲染字模 */
   renderChar: (
     input: CharRenderInput,

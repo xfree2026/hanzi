@@ -110,7 +110,7 @@ export default function CopybookPageView({
     return (
       <g key={`${rowIdx}-${colIdx}`}>
         {bgRect}
-        {gridStyle.renderBackground(cellSize, x, y)}
+        {gridStyle.renderBackground(cellSize, x, y, gridStyle.id)}
         {config.enableStroke && strokeStep && strokeTotal ? (
           bihuaChar(
             {
@@ -210,6 +210,9 @@ export default function CopybookPageView({
       xmlns="http://www.w3.org/2000/svg"
       style={{ display: "block" }}
     >
+      <defs>
+        {gridStyle.renderDefs?.(cellSize, gridStyle.id)}
+      </defs>
       <rect x={0} y={0} width={vbWidth} height={vbHeight} fill={bgColor} />
 
       {/* 页眉标题 */}

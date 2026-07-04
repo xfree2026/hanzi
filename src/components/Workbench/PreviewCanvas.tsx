@@ -53,8 +53,8 @@ export default function PreviewCanvas() {
                 <div className="no-print mb-2 text-center text-[10px] text-ink-400">
                   第 {p.index + 1} / {pages.length} 页
                 </div>
-                {/* A4 比例容器 */}
-                <div className="preview-page no-print aspect-[210/297] w-full overflow-hidden rounded-sm border border-ink-200/40 bg-white shadow-paper">
+                {/* A4 比例容器，兼作打印容器 */}
+                <div className="preview-page print-page aspect-[210/297] w-full overflow-hidden rounded-sm border border-ink-200/40 bg-white shadow-paper">
                   <CopybookPageView
                     page={p}
                     config={config}
@@ -67,23 +67,6 @@ export default function PreviewCanvas() {
             ))}
           </div>
         )}
-      </div>
-
-      {/* 隐藏的打印区：渲染所有页，每页一个 A4 物理容器；@media print 时显示 */}
-      <div className="print-layout hidden">
-        {pages.map((p) => (
-          <div key={p.index} className="print-page">
-            <div className="print-page-inner">
-              <CopybookPageView
-                page={p}
-                config={config}
-                title={title}
-                strokeDataMap={strokeDataMap}
-                responsive
-              />
-            </div>
-          </div>
-        ))}
       </div>
     </main>
   );
