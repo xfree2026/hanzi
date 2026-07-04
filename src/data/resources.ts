@@ -8,7 +8,7 @@ export const RESOURCES: TextResource[] = [
     category: "primer",
     author: "宋·王应麟",
     description: "蒙学之首，三字一句，朗朗上口，涵盖常识、伦理、历史、勤学。",
-    file: "/resources/三字经.txt",
+    file: "/resources/san-zi-jing.txt",
   },
   {
     id: "bai-jia-xing",
@@ -16,7 +16,7 @@ export const RESOURCES: TextResource[] = [
     category: "primer",
     author: "宋·佚名",
     description: "收录中国常见姓氏，四字一句，韵律齐整，便于记诵。",
-    file: "/resources/百家姓.txt",
+    file: "/resources/bai-jia-xing.txt",
   },
   {
     id: "qian-zi-wen",
@@ -24,7 +24,7 @@ export const RESOURCES: TextResource[] = [
     category: "primer",
     author: "梁·周兴嗣",
     description: "一千字不重，涵盖天文地理、修身治国，历代书家最爱临写之本。",
-    file: "/resources/千字文.txt",
+    file: "/resources/qian-zi-wen.txt",
   },
   {
     id: "tang-shi",
@@ -32,7 +32,7 @@ export const RESOURCES: TextResource[] = [
     category: "poetry",
     author: "清·蘅塘退士 编",
     description: "精选唐代名诗，五七言古今体皆备，临摹之余亦可诵读品味。",
-    file: "/resources/唐诗三百首.txt",
+    file: "/resources/tang-shi.txt",
   },
   {
     id: "shang-han-lun",
@@ -40,7 +40,7 @@ export const RESOURCES: TextResource[] = [
     category: "medicine",
     author: "汉·张仲景",
     description: "辨证论治之祖，三百九十七法，方证相应，习医者必读经典。",
-    file: "/resources/伤寒论.txt",
+    file: "/resources/shang-han-lun.txt",
   },
   {
     id: "huang-di-nei-jing",
@@ -48,7 +48,7 @@ export const RESOURCES: TextResource[] = [
     category: "medicine",
     author: "战国·佚名",
     description: "医家之宗，阴阳五行、藏象经络、病机诊法皆源于此。",
-    file: "/resources/黄帝内经.txt",
+    file: "/resources/huang-di-nei-jing.txt",
   },
   {
     id: "zhen-jiu-da-cheng",
@@ -56,7 +56,7 @@ export const RESOURCES: TextResource[] = [
     category: "medicine",
     author: "明·杨继洲",
     description: "针灸歌赋集粹，标幽、百症、玉龙、天星十二穴等，便于临证取穴。",
-    file: "/resources/针灸大成.txt",
+    file: "/resources/zhen-jiu-da-cheng.txt",
   },
 ];
 
