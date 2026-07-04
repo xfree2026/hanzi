@@ -7,6 +7,8 @@ interface CopybookPageProps {
   config: CopybookConfig;
   /** 资源标题（用于扉页与页眉） */
   title: string;
+  /** 响应式铺满父容器（打印时使用，SVG 用 100% 宽高 + preserveAspectRatio） */
+  responsive?: boolean;
 }
 
 /**
@@ -18,6 +20,7 @@ export default function CopybookPageView({
   page,
   config,
   title,
+  responsive = false,
 }: CopybookPageProps) {
   const gridStyle = getGridStyle(config.gridStyle);
   const cellSize = config.cellSize;
@@ -82,11 +85,12 @@ export default function CopybookPageView({
     const imgH = height - padY * 2 - 80;
     return (
       <svg
-        width={width}
-        height={height}
+        width={responsive ? "100%" : width}
+        height={responsive ? "100%" : height}
         viewBox={`0 0 ${width} ${height}`}
+        preserveAspectRatio="xMidYMid meet"
         xmlns="http://www.w3.org/2000/svg"
-        style={{ background: "#fff" }}
+        style={{ background: "#fff", display: "block" }}
       >
         <rect x={0} y={0} width={width} height={height} fill="#fdfaf2" />
         {img && (
@@ -125,11 +129,12 @@ export default function CopybookPageView({
 
   return (
     <svg
-      width={width}
-      height={height}
+      width={responsive ? "100%" : width}
+      height={responsive ? "100%" : height}
       viewBox={`0 0 ${width} ${height}`}
+      preserveAspectRatio="xMidYMid meet"
       xmlns="http://www.w3.org/2000/svg"
-      style={{ background: "#fff" }}
+      style={{ background: "#fff", display: "block" }}
     >
       <rect x={0} y={0} width={width} height={height} fill="#fdfaf2" />
 

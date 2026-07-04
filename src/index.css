@@ -66,28 +66,64 @@ body {
   background: rgba(31, 28, 24, 0.32);
 }
 
-/* 打印样式：仅保留字帖页 */
+/* 打印样式：每页对应一个 A4 物理页面 */
 @media print {
   @page {
     size: A4;
-    margin: 12mm;
+    margin: 0;
   }
+  html,
   body {
     background: #fff !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: auto !important;
+    height: auto !important;
+    overflow: visible !important;
   }
+  /* 隐藏所有非打印内容（工具栏、设置面板、预览页等） */
   .no-print {
     display: none !important;
   }
+  /* 隐藏预览页（已用 no-print，此处兜底） */
+  .preview-page {
+    display: none !important;
+  }
+  /* 显示打印区 */
+  .print-layout {
+    display: block !important;
+  }
+  /* 每个 .print-page = 一张 A4 纸 */
   .print-page {
+    width: 210mm;
+    height: 297mm;
+    padding: 14mm;
+    box-sizing: border-box;
     page-break-after: always;
     break-after: page;
+    overflow: hidden;
+    background: #fff;
   }
   .print-page:last-child {
     page-break-after: auto;
+    break-after: auto;
   }
+  /* 内层 flex 容器让 SVG 居中并铺满 */
+  .print-page-inner {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  /* 打印区根容器无任何布局干扰 */
   .copybook-print-area {
     box-shadow: none !important;
     margin: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+    background: #fff !important;
+    display: block !important;
   }
 }
 
