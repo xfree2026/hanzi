@@ -51,6 +51,7 @@ export default function CopybookPageView({
             simplified: char,
             traditional: charTraditional,
             charset: config.charset,
+            layout: config.layout,
           },
           cellSize,
           config.font,

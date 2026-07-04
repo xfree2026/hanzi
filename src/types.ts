@@ -94,6 +94,8 @@ export interface CharRenderInput {
   traditional: string;
   /** 字符集模式 */
   charset: CharsetMode;
+  /** 排版方向：影响 bilingual 对照的分隔方向（横排上下 / 竖排左右） */
+  layout: LayoutMode;
 }
 
 /** 字格样式接口（插件化） */
