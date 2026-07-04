@@ -111,6 +111,9 @@ body {
     break-after: page;
     overflow: hidden;
     background: #fff !important;
+    /* 【核心修复】强制触发浏览器的位图栅格化打印，彻底绕过部分 GDI 打印机驱动对 SVG 矢量坐标缩放错乱的 Bug */
+    opacity: 0.99;
+    filter: contrast(1);
   }
   .print-page:last-child {
     page-break-after: auto;
