@@ -1,0 +1,112 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-ink: #1f1c18;
+  --color-paper: #f5efe1;
+  --color-cinnabar: #c0392b;
+  --color-aloes: #b08d57;
+  --color-jade: #5a7d6a;
+  font-family: "Noto Sans SC", system-ui, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  background-color: var(--color-paper);
+  background-image:
+    radial-gradient(circle at 20% 30%, rgba(176, 141, 87, 0.06) 0%, transparent 40%),
+    radial-gradient(circle at 80% 70%, rgba(192, 57, 43, 0.04) 0%, transparent 35%),
+    radial-gradient(circle at 50% 90%, rgba(90, 125, 106, 0.05) 0%, transparent 40%);
+  color: var(--color-ink);
+}
+
+/* 印章 */
+.seal-stamp {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  background: var(--color-cinnabar);
+  color: #fff;
+  border-radius: 0.35rem;
+  font-family: "Ma Shan Zheng", "STKaiti", serif;
+  font-size: 1.1rem;
+  letter-spacing: -1px;
+  box-shadow: 0 2px 6px rgba(192, 57, 43, 0.35), inset 0 0 0 2px rgba(255, 255, 255, 0.15);
+  transform: rotate(-2deg);
+}
+
+/* 滚动条 */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(31, 28, 24, 0.18);
+  border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(31, 28, 24, 0.32);
+}
+
+/* 打印样式：仅保留字帖页 */
+@media print {
+  @page {
+    size: A4;
+    margin: 12mm;
+  }
+  body {
+    background: #fff !important;
+  }
+  .no-print {
+    display: none !important;
+  }
+  .print-page {
+    page-break-after: always;
+    break-after: page;
+  }
+  .print-page:last-child {
+    page-break-after: auto;
+  }
+  .copybook-print-area {
+    box-shadow: none !important;
+    margin: 0 !important;
+  }
+}
+
+/* 字帖网格底纹颜色变量 */
+.cell-grid-stroke {
+  stroke: rgba(176, 141, 87, 0.55);
+  fill: none;
+}
+.cell-grid-mi-stroke {
+  stroke: rgba(176, 141, 87, 0.35);
+  fill: none;
+}
+.cell-char-miaohong {
+  fill: rgba(192, 57, 43, 0.32);
+}
+.cell-char-shixin {
+  fill: rgba(31, 28, 24, 0.85);
+}
+.cell-char-lunkuo {
+  fill: rgba(31, 28, 24, 0);
+  stroke: rgba(31, 28, 24, 0.5);
+}
