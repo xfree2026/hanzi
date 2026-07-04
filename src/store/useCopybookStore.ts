@@ -10,6 +10,7 @@ import type {
 import { RESOURCES, loadResourceText } from "@/data/resources";
 import { preloadStrokes, type StrokeData } from "@/utils/strokeData";
 import { extractHanzi } from "@/generator/textProcessor";
+import { s2t, t2s } from "@/utils/dict";
 
 interface CopybookState {
   config: CopybookConfig;
@@ -165,8 +166,12 @@ export const useCopybookStore = create<CopybookState>((set, get) => ({
   },
   setLayout: (mode) =>
     set((s) => ({ config: { ...s.config, layout: mode }, currentPage: 0 })),
-  setCharset: (mode) =>
-    set((s) => ({ config: { ...s.config, charset: mode } })),
+  setCharset: (mode) => {
+    set((s) => ({ config: { ...s.config, charset: mode } }));
+    if (get().config.gridStyle === "bihua") {
+      get().loadStrokeData();
+    }
+  },
   setCharsPerRow: (n) =>
     set((s) => ({
       config: { ...s.config, charsPerRow: Math.max(1, Math.min(20, n)) },
@@ -188,11 +193,15 @@ export const useCopybookStore = create<CopybookState>((set, get) => ({
     set((s) => ({ config: { ...s.config, showTitle: !s.config.showTitle } })),
   setBackgroundColor: (color) =>
     set((s) => ({ config: { ...s.config, backgroundColor: color } })),
-  setBihuaLimit: (n) =>
+  setBihuaLimit: (n) => {
     set((s) => ({
       config: { ...s.config, bihuaLimit: Math.max(1, Math.min(200, n)) },
       currentPage: 0,
-    })),
+    }));
+    if (get().config.gridStyle === "bihua") {
+      get().loadStrokeData();
+    }
+  },
   setCurrentPage: (n) => set({ currentPage: Math.max(0, n) }),
 
   openResourceModal: (id) =>
@@ -242,13 +251,25 @@ export const useCopybookStore = create<CopybookState>((set, get) => ({
     })),
 
   loadStrokeData: async () => {
-    const { sourceText } = get().config;
+    const { sourceText, bihuaLimit } = get().config;
     if (!sourceText) return;
 
     set({ strokeDataLoading: true });
     try {
       const chars = extractHanzi(sourceText);
-      const map = await preloadStrokes(chars);
+      const limit = bihuaLimit ?? 12;
+      const charsToProcess = chars.slice(0, limit);
+      
+      const charsToLoad: string[] = [];
+      for (const ch of charsToProcess) {
+        charsToLoad.push(ch);
+        const simp = t2s(ch);
+        const trad = s2t(ch);
+        if (simp) charsToLoad.push(simp);
+        if (trad) charsToLoad.push(trad);
+      }
+      
+      const map = await preloadStrokes(charsToLoad);
       set({ strokeDataMap: map, strokeDataLoading: false });
     } catch {
       set({ strokeDataLoading: false });
