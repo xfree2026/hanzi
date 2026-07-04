@@ -170,7 +170,7 @@ export default function SettingsPanel() {
                   <div className="min-w-0">
                     <div
                       className={cn(
-                        "truncate text-[12px]",
+                        "text-[12px] leading-tight break-keep",
                         active ? "text-cinnabar-dark" : "text-ink-800",
                       )}
                     >
