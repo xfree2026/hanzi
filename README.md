@@ -1,3 +1,35 @@
+# React + TypeScript + Vite
+
+This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+
+Currently, two official plugins are available:
+
+- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
+- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+
+## Expanding the ESLint configuration
+
+If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+
+```js
+export default tseslint.config({
+  extends: [
+    // Remove ...tseslint.configs.recommended and replace with this
+    ...tseslint.configs.recommendedTypeChecked,
+    // Alternatively, use this for stricter rules
+    ...tseslint.configs.strictTypeChecked,
+    // Optionally, add this for stylistic rules
+    ...tseslint.configs.stylisticTypeChecked,
+  ],
+  languageOptions: {
+    // other options...
+    parserOptions: {
+      project: ['./tsconfig.node.json', './tsconfig.app.json'],
+      tsconfigRootDir: import.meta.dirname,
+    },
+  },
+})
+=======
 # 汉字字帖生成器
 
 一个可生成、预览、打印的汉字临摹字帖工具，内置经典文本资源库，支持多种排版样式与描红模式，样式可持续扩展。
@@ -53,16 +85,3 @@ hanzi/
 │   ├── printer/            # 打印与预览
 │   └── ui/                 # 用户界面
 └── docs/                   # 文档
-```
-
-## 待办
-
-- [ ] 确认技术栈与运行平台（Web / 桌面）
-- [ ] 字模数据来源（矢量字体轮廓方案）
-- [ ] 打印精度与纸张规格适配（A4 等）
-- [ ] 文本资源库整理
-- [ ] 样式扩展机制设计
-
-## 许可证
-
-待定
