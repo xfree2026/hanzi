@@ -29,29 +29,59 @@ export default tseslint.config({
     },
   },
 })
+=======
+# 汉字字帖生成器
+
+一个可生成、预览、打印的汉字临摹字帖工具，内置经典文本资源库，支持多种排版样式与描红模式，样式可持续扩展。
+
+## 功能特性
+
+### 核心能力
+- **字帖生成**：根据选择的文本与样式生成可临摹的字帖
+- **打印输出**：连接打印机直接打印，支持打印预览
+- **预览效果**：生成前实时预览版式与样式
+- **资源库**：内置经典文本（如《三字经》《百家姓》《千字文》《唐诗》《易经》《六十四卦》《九章算术》《周髀算经》《史记·天官书》《开元占经》《周易参同契》《抱朴子内篇》《针灸大成》《伤寒论》《黄帝内经》等），可扩展
+
+### 排版样式
+- **横排左到右**：现代常规横排
+- **竖排右到左**：传统竖排，从右向左阅读
+- 样式可扩展（后续支持更多版式）
+
+### 字格样式
+- **田字格**：标准米字格/田字格底纹
+- **描红**：浅色（红色）字模供描摹
+- **字体轮廓**：仅显示字形轮廓供临摹
+- **多种样式**：支持多种字格与字模组合，后期可扩展
+
+### 扩展性
+- 样式与版式采用插件化/配置化设计，便于后期新增
+- 文本资源库可动态加载与扩充
+
+## 技术选型（建议）
+
+| 模块 | 选型 | 说明 |
+| --- | --- | --- |
+| 渲染 | SVG / Canvas | 矢量绘制，便于打印精度控制 |
+| 字模 | 矢量字体 + 轮廓提取 | 支持描红、轮廓、实心等多种字模模式 |
+| 打印 | 浏览器打印 / 系统打印 API | 支持预览与直接打印 |
+| 资源库 | 本地文本文件（UTF-8） | 经典文本以纯文本存储，便于维护扩展 |
+
+> 最终技术栈可在评审后调整。
+
+## 目录结构（规划）
+
 ```
-
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default tseslint.config({
-  extends: [
-    // other configs...
-    // Enable lint rules for React
-    reactX.configs['recommended-typescript'],
-    // Enable lint rules for React DOM
-    reactDom.configs.recommended,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
+hanzi/
+├── README.md
+├── resources/              # 经典文本资源库
+│   ├── 三字经.txt
+│   ├── 百家姓.txt
+│   ├── 千字文.txt
+│   └── ...
+├── src/                    # 源码
+│   ├── generator/          # 字帖生成核心
+│   ├── styles/             # 字格/版式样式（可扩展）
+│   ├── renderer/           # 渲染（SVG/Canvas）
+│   ├── printer/            # 打印与预览
+│   └── ui/                 # 用户界面
+└── docs/                   # 文档
