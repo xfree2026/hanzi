@@ -1,7 +1,7 @@
 // 简繁体转换工具
-// 基于 simplebig 字典库，纯前端运行
+// 基于本地 vendored 字典库（src/utils/dict），纯前端运行，零 Node 依赖
 
-import { s2t, t2s } from "simplebig";
+import { s2t, t2s } from "@/utils/dict";
 
 /** 字符集模式 */
 export type CharsetMode = "auto" | "simplified" | "traditional" | "bilingual";

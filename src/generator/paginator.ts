@@ -1,6 +1,6 @@
 import type { Cell, CopybookConfig, CopybookPage } from "@/types";
 import { extractHanzi } from "./textProcessor";
-import { s2t, t2s } from "simplebig";
+import { s2t, t2s } from "@/utils/dict";
 
 /**
  * 字帖分页算法。
