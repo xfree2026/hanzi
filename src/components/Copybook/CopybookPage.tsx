@@ -32,7 +32,12 @@ export default function CopybookPageView({
     return { width: w, height: h };
   }, [config.charsPerRow, config.rowsPerPage, cellSize, headerH]);
 
-  const renderCell = (char: string, rowIdx: number, colIdx: number) => {
+  const renderCell = (
+    char: string,
+    charTraditional: string,
+    rowIdx: number,
+    colIdx: number,
+  ) => {
     const x =
       config.layout === "vertical-rl"
         ? padX + (config.charsPerRow - 1 - colIdx) * cellSize
@@ -42,7 +47,11 @@ export default function CopybookPageView({
       <g key={`${rowIdx}-${colIdx}`} transform={`translate(${x}, ${y})`}>
         {gridStyle.renderBackground(cellSize)}
         {gridStyle.renderChar(
-          char,
+          {
+            simplified: char,
+            traditional: charTraditional,
+            charset: config.charset,
+          },
           cellSize,
           config.font,
           config.showPinyin,
@@ -152,7 +161,9 @@ export default function CopybookPageView({
 
       {/* 字格 */}
       {page.cells.map((row, rIdx) =>
-        row.map((cell, cIdx) => renderCell(cell.char, rIdx, cIdx)),
+        row.map((cell, cIdx) =>
+          renderCell(cell.char, cell.charTraditional, rIdx, cIdx),
+        ),
       )}
 
       {/* 页脚 */}

@@ -3,6 +3,7 @@ import {
   Columns3,
   Grid2x2,
   Hexagon,
+  Languages,
   Paintbrush,
   PencilLine,
   Rows3,
@@ -12,7 +13,12 @@ import {
 import { GRID_STYLES } from "@/components/Copybook/gridStyles";
 import { useCopybookStore } from "@/store/useCopybookStore";
 import { cn } from "@/lib/utils";
-import type { GridStyleId, IllustrationPosition, LayoutMode } from "@/types";
+import type {
+  CharsetMode,
+  GridStyleId,
+  IllustrationPosition,
+  LayoutMode,
+} from "@/types";
 
 const FONTS = [
   { label: "楷体 (系统)", value: 'STKaiti, "KaiTi", "楷体", serif' },
@@ -79,6 +85,7 @@ export default function SettingsPanel() {
   const config = useCopybookStore((s) => s.config);
   const setGridStyle = useCopybookStore((s) => s.setGridStyle);
   const setLayout = useCopybookStore((s) => s.setLayout);
+  const setCharset = useCopybookStore((s) => s.setCharset);
   const setCharsPerRow = useCopybookStore((s) => s.setCharsPerRow);
   const setRowsPerPage = useCopybookStore((s) => s.setRowsPerPage);
   const setCellSize = useCopybookStore((s) => s.setCellSize);
@@ -206,6 +213,68 @@ export default function SettingsPanel() {
               );
             })}
           </div>
+        </section>
+
+        {/* 字符集模式 */}
+        <section>
+          <h3 className="mb-2 flex items-center gap-1.5 text-[11px] uppercase tracking-[0.2em] text-aloes-deep">
+            <Languages className="h-3 w-3" /> 简繁模式
+          </h3>
+          <div className="grid grid-cols-2 gap-2">
+            {(
+              [
+                {
+                  id: "auto",
+                  label: "保持原文",
+                  hint: "资源库原貌",
+                },
+                {
+                  id: "simplified",
+                  label: "简体",
+                  hint: "全部转简",
+                },
+                {
+                  id: "traditional",
+                  label: "繁体",
+                  hint: "全部转繁",
+                },
+                {
+                  id: "bilingual",
+                  label: "简繁对照",
+                  hint: "上简 · 下繁",
+                },
+              ] as { id: CharsetMode; label: string; hint: string }[]
+            ).map((opt) => {
+              const active = config.charset === opt.id;
+              return (
+                <button
+                  key={opt.id}
+                  onClick={() => setCharset(opt.id)}
+                  className={cn(
+                    "flex flex-col items-start rounded-md border px-3 py-2 text-left transition",
+                    active
+                      ? "border-cinnabar/50 bg-cinnabar/5"
+                      : "border-ink-200/50 bg-paper/60 hover:border-aloes/50",
+                  )}
+                >
+                  <span
+                    className={cn(
+                      "text-[12px]",
+                      active ? "text-cinnabar-dark" : "text-ink-800",
+                    )}
+                  >
+                    {opt.label}
+                  </span>
+                  <span className="text-[10px] text-ink-500">{opt.hint}</span>
+                </button>
+              );
+            })}
+          </div>
+          {config.charset === "bilingual" && (
+            <p className="mt-2 rounded-md border border-aloes/30 bg-aloes/5 px-2.5 py-1.5 text-[10px] leading-relaxed text-aloes-deep">
+              对照模式：字格上下分半，上半简体、下半繁体，红色虚线分隔，便于对照临摹。
+            </p>
+          )}
         </section>
 
         {/* 网格规格 */}

@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import type {
+  CharsetMode,
   CopybookConfig,
   GridStyleId,
   IllustrationPosition,
@@ -28,6 +29,7 @@ interface CopybookState {
   setCustomText: (text: string) => void;
   setGridStyle: (id: GridStyleId) => void;
   setLayout: (mode: LayoutMode) => void;
+  setCharset: (mode: CharsetMode) => void;
   setCharsPerRow: (n: number) => void;
   setRowsPerPage: (n: number) => void;
   setCellSize: (n: number) => void;
@@ -53,6 +55,7 @@ const DEFAULT_CONFIG: CopybookConfig = {
   sourceText: "",
   gridStyle: "mi",
   layout: "horizontal-lr",
+  charset: "auto",
   charsPerRow: 8,
   rowsPerPage: 10,
   cellSize: 64,
@@ -130,6 +133,8 @@ export const useCopybookStore = create<CopybookState>((set, get) => ({
     set((s) => ({ config: { ...s.config, gridStyle: id } })),
   setLayout: (mode) =>
     set((s) => ({ config: { ...s.config, layout: mode }, currentPage: 0 })),
+  setCharset: (mode) =>
+    set((s) => ({ config: { ...s.config, charset: mode } })),
   setCharsPerRow: (n) =>
     set((s) => ({
       config: { ...s.config, charsPerRow: Math.max(1, Math.min(20, n)) },

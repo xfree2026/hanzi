@@ -1,4 +1,4 @@
-import type { GridStyle, GridStyleId } from "@/types";
+import type { CharRenderInput, GridStyle, GridStyleId } from "@/types";
 
 /**
  * 字格样式插件集合。
@@ -9,6 +9,10 @@ import type { GridStyle, GridStyleId } from "@/types";
  *   - renderChar：字模呈现（描红/轮廓/实心）
  *
  * 字格底纹与字模组合自由，例如「米字格 + 描红字模」。
+ *
+ * 字符集模式支持：
+ *   - auto / simplified / traditional：单字模渲染
+ *   - bilingual：字格分为上下两半，上方简体、下方繁体，中间以细线分隔
  */
 
 interface BackgroundRenderer {
@@ -16,7 +20,7 @@ interface BackgroundRenderer {
 }
 
 interface CharRenderer {
-  (char: string, size: number, font: string, showPinyin: boolean): JSX.Element;
+  (input: CharRenderInput, size: number, font: string, showPinyin: boolean): JSX.Element;
 }
 
 // ===== 底纹渲染 =====
@@ -168,58 +172,170 @@ const jiugongBackground: BackgroundRenderer = (size) => {
 
 // ===== 字模渲染 =====
 
-const renderCharText = (
+/** 决定单字模模式下显示哪个字（简/繁） */
+function pickDisplayChar(input: CharRenderInput): string {
+  switch (input.charset) {
+    case "traditional":
+      return input.traditional || input.simplified;
+    case "simplified":
+    case "auto":
+    case "bilingual":
+    default:
+      return input.simplified || input.traditional;
+  }
+}
+
+function renderSingleText(
   char: string,
   size: number,
   font: string,
   className: string,
-  fillOverride?: string,
-  strokeOverride?: string,
-  strokeWidth: number = 0,
-) => {
+  cy: number,
+  scale = 0.78,
+) {
   if (!char) return null;
-  const fontSize = size * 0.78;
+  const fontSize = size * scale;
   return (
     <text
       x={size / 2}
-      y={size / 2 + fontSize * 0.36}
+      y={cy + fontSize * 0.36}
       textAnchor="middle"
       fontFamily={font}
       fontSize={fontSize}
       className={className}
-      fill={fillOverride}
-      stroke={strokeOverride}
-      strokeWidth={strokeWidth}
       style={{ userSelect: "none" }}
     >
       {char}
     </text>
   );
-};
+}
+
+function renderStrokeText(
+  char: string,
+  size: number,
+  font: string,
+  cy: number,
+  scale = 0.78,
+) {
+  if (!char) return null;
+  const fontSize = size * scale;
+  return (
+    <text
+      x={size / 2}
+      y={cy + fontSize * 0.36}
+      textAnchor="middle"
+      fontFamily={font}
+      fontSize={fontSize}
+      className="cell-char-lunkuo"
+      strokeWidth={1.2}
+      fill="none"
+      style={{ userSelect: "none", paintOrder: "stroke" }}
+    >
+      {char}
+    </text>
+  );
+}
 
 const blankChar: CharRenderer = () => <></>;
 
-const miaohongChar: CharRenderer = (char, size, font) =>
-  renderCharText(char, size, font, "cell-char-miaohong") as JSX.Element;
+const shixinChar: CharRenderer = (input, size, font) => {
+  if (input.charset === "bilingual") {
+    // 对照：上方简体（深色），下方繁体（深色稍浅）
+    const half = size / 2;
+    return (
+      <g>
+        {renderSingleText(
+          input.simplified,
+          half,
+          font,
+          "cell-char-shixin",
+          0,
+          0.7,
+        )}
+        {renderSingleText(
+          input.traditional,
+          half,
+          font,
+          "cell-char-shixin",
+          half,
+          0.7,
+        )}
+        {/* 中分隔线 */}
+        <line
+          x1={4}
+          y1={half}
+          x2={size - 4}
+          y2={half}
+          stroke="rgba(192,57,43,0.45)"
+          strokeWidth={0.8}
+          strokeDasharray="2 2"
+        />
+      </g>
+    ) as unknown as JSX.Element;
+  }
+  const ch = pickDisplayChar(input);
+  return renderSingleText(ch, size, font, "cell-char-shixin", 0) as unknown as JSX.Element;
+};
 
-const shixinChar: CharRenderer = (char, size, font) =>
-  renderCharText(char, size, font, "cell-char-shixin") as JSX.Element;
+const miaohongChar: CharRenderer = (input, size, font) => {
+  if (input.charset === "bilingual") {
+    const half = size / 2;
+    return (
+      <g>
+        {renderSingleText(
+          input.simplified,
+          half,
+          font,
+          "cell-char-miaohong",
+          0,
+          0.7,
+        )}
+        {renderSingleText(
+          input.traditional,
+          half,
+          font,
+          "cell-char-miaohong",
+          half,
+          0.7,
+        )}
+        <line
+          x1={4}
+          y1={half}
+          x2={size - 4}
+          y2={half}
+          stroke="rgba(192,57,43,0.45)"
+          strokeWidth={0.8}
+          strokeDasharray="2 2"
+        />
+      </g>
+    ) as unknown as JSX.Element;
+  }
+  const ch = pickDisplayChar(input);
+  return renderSingleText(ch, size, font, "cell-char-miaohong", 0) as unknown as JSX.Element;
+};
 
-const lunkuoChar: CharRenderer = (char, size, font) => (
-  <text
-    x={size / 2}
-    y={size / 2 + size * 0.78 * 0.36}
-    textAnchor="middle"
-    fontFamily={font}
-    fontSize={size * 0.78}
-    className="cell-char-lunkuo"
-    strokeWidth={1.2}
-    fill="none"
-    style={{ userSelect: "none", paintOrder: "stroke" }}
-  >
-    {char}
-  </text>
-) as unknown as JSX.Element;
+const lunkuoChar: CharRenderer = (input, size, font) => {
+  if (input.charset === "bilingual") {
+    const half = size / 2;
+    return (
+      <g>
+        {renderStrokeText(input.simplified, half, font, 0, 0.7)}
+        {renderStrokeText(input.traditional, half, font, half, 0.7)}
+        <line
+          x1={4}
+          y1={half}
+          x2={size - 4}
+          y2={half}
+          stroke="rgba(31,28,24,0.3)"
+          strokeWidth={0.6}
+          strokeDasharray="2 2"
+        />
+      </g>
+    ) as unknown as JSX.Element;
+  }
+  const ch = pickDisplayChar(input);
+  return renderStrokeText(ch, size, font, 0) as unknown as JSX.Element;
+};
 
 // ===== 样式注册表 =====
 // 字格底纹与字模可任意组合，这里提供常用预设。

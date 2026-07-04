@@ -27,6 +27,9 @@ export type GridStyleId =
 /** 版式 */
 export type LayoutMode = "horizontal-lr" | "vertical-rl";
 
+/** 字符集模式：自动(保持原文) / 简体 / 繁体 / 简繁对照 */
+export type CharsetMode = "auto" | "simplified" | "traditional" | "bilingual";
+
 /** AI 配图风格预设 */
 export type IllustrationStyle =
   | "ink"
@@ -49,6 +52,8 @@ export interface CopybookConfig {
   sourceText: string;
   gridStyle: GridStyleId;
   layout: LayoutMode;
+  /** 字符集模式：自动 / 简体 / 繁体 / 简繁对照 */
+  charset: CharsetMode;
   charsPerRow: number;
   rowsPerPage: number;
   cellSize: number;
@@ -63,7 +68,10 @@ export interface CopybookConfig {
 
 /** 单字格信息 */
 export interface Cell {
+  /** 简体字（auto / simplified 模式使用） */
   char: string;
+  /** 繁体字（traditional / bilingual 模式使用，可与 char 相同） */
+  charTraditional: string;
   /** 在资源中的字符序号，便于显示笔画信息 */
   index: number;
   /** 是否占位空格 */
@@ -78,6 +86,16 @@ export interface CopybookPage {
   isTitlePage: boolean;
 }
 
+/** 字模渲染所需信息 */
+export interface CharRenderInput {
+  /** 简体字模 */
+  simplified: string;
+  /** 繁体字模（auto 模式下与 simplified 相同） */
+  traditional: string;
+  /** 字符集模式 */
+  charset: CharsetMode;
+}
+
 /** 字格样式接口（插件化） */
 export interface GridStyle {
   id: GridStyleId;
@@ -87,7 +105,7 @@ export interface GridStyle {
   renderBackground: (size: number) => JSX.Element;
   /** 渲染字模 */
   renderChar: (
-    char: string,
+    input: CharRenderInput,
     size: number,
     font: string,
     showPinyin: boolean,

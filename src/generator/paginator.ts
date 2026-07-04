@@ -1,5 +1,6 @@
 import type { Cell, CopybookConfig, CopybookPage } from "@/types";
 import { extractHanzi } from "./textProcessor";
+import { s2t, t2s } from "simplebig";
 
 /**
  * 字帖分页算法。
@@ -8,11 +9,25 @@ import { extractHanzi } from "./textProcessor";
  * 竖排：每列从上到下填字，列从右到左排列（传统书页式），填满 charsPerRow 列后换页。
  *
  * 当配置 illustration.position === 'title-page' 时，首页作为扉页（仅放插图与标题，不放字格）。
+ *
+ * 字符集模式处理：
+ * - auto：保持原文，char 与 charTraditional 相同
+ * - simplified：原文 → 简体，char 即简体，charTraditional 为对应的繁体（供对照参考）
+ * - traditional：原文 → 繁体，charTraditional 即繁体，char 为对应的简体
+ * - bilingual：同时生成简/繁两套字符，char=简、charTraditional=繁
  */
 export function paginate(config: CopybookConfig): CopybookPage[] {
-  const chars = extractHanzi(config.sourceText);
-  const { charsPerRow, rowsPerPage } = config;
+  const sourceChars = extractHanzi(config.sourceText);
+  const { charsPerRow, rowsPerPage, charset } = config;
   const perPage = charsPerRow * rowsPerPage;
+
+  // 按字符集模式预处理字符
+  const chars: { simplified: string; traditional: string }[] = [];
+  for (const ch of sourceChars) {
+    const simp = t2s(ch);
+    const trad = s2t(ch);
+    chars.push({ simplified: simp, traditional: trad });
+  }
 
   // 扉页
   const hasTitlePage =
@@ -38,22 +53,42 @@ export function paginate(config: CopybookConfig): CopybookPage[] {
     for (let r = 0; r < rowsPerPage; r++) {
       const row: Cell[] = [];
       for (let c = 0; c < charsPerRow; c++) {
-        const idx = r * charsPerRow + c;
         if (config.layout === "vertical-rl") {
           // 竖排：按列优先切片
           const charIdx = c * rowsPerPage + r;
           const ch = slice[charIdx];
           if (ch !== undefined) {
-            row.push({ char: ch, index: cursor + charIdx, placeholder: false });
+            row.push({
+              char: ch.simplified,
+              charTraditional: ch.traditional,
+              index: cursor + charIdx,
+              placeholder: false,
+            });
           } else {
-            row.push({ char: "", index: -1, placeholder: true });
+            row.push({
+              char: "",
+              charTraditional: "",
+              index: -1,
+              placeholder: true,
+            });
           }
         } else {
+          const idx = r * charsPerRow + c;
           const ch = slice[idx];
           if (ch !== undefined) {
-            row.push({ char: ch, index: cursor + idx, placeholder: false });
+            row.push({
+              char: ch.simplified,
+              charTraditional: ch.traditional,
+              index: cursor + idx,
+              placeholder: false,
+            });
           } else {
-            row.push({ char: "", index: -1, placeholder: true });
+            row.push({
+              char: "",
+              charTraditional: "",
+              index: -1,
+              placeholder: true,
+            });
           }
         }
       }
@@ -74,6 +109,7 @@ export function paginate(config: CopybookConfig): CopybookPage[] {
       cells: Array.from({ length: rowsPerPage }, () =>
         Array.from({ length: charsPerRow }, () => ({
           char: "",
+          charTraditional: "",
           index: -1,
           placeholder: true,
         })),
