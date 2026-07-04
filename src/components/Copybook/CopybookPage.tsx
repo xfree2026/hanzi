@@ -99,10 +99,10 @@ export default function CopybookPageView({
       ) : null;
 
     // 获取笔画路径数据
-    const displayChar =
-      config.charset === "traditional"
-        ? charTraditional || char
-        : char || charTraditional;
+    let displayChar = char || charTraditional;
+    if (bilingualDisplay === "traditional" || config.charset === "traditional") {
+      displayChar = charTraditional || char;
+    }
     const strokeData = strokeDataMap?.get(displayChar);
     const strokePaths = strokeData?.strokes;
 
