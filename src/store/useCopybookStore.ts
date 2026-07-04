@@ -45,6 +45,7 @@ interface CopybookState {
   toggleTitle: () => void;
   togglePunctuation: () => void;
   setEnableStroke: (val: boolean) => void;
+  setStrokeStartIndex: (n: number) => void;
   setBackgroundColor: (color: string | null) => void;
   setBihuaLimit: (n: number) => void;
   setCurrentPage: (n: number) => void;
@@ -77,6 +78,7 @@ const DEFAULT_CONFIG: CopybookConfig = {
   showTitle: true,
   includePunctuation: false,
   enableStroke: false,
+  strokeStartIndex: 0,
   backgroundColor: null,
   bihuaLimit: 12,
   illustration: { url: null, position: null },
@@ -152,6 +154,7 @@ export const useCopybookStore = create<CopybookState>((set, get) => ({
         resourceId: null,
         customText: text,
         sourceText: text,
+        strokeStartIndex: 0,
       },
       currentPage: 0,
     }));
@@ -201,8 +204,14 @@ export const useCopybookStore = create<CopybookState>((set, get) => ({
     }
   },
   setEnableStroke: (val) => {
-    set((s) => ({ config: { ...s.config, enableStroke: val }, currentPage: 0 }));
+    set((s) => ({ config: { ...s.config, enableStroke: val, strokeStartIndex: 0 }, currentPage: 0 }));
     if (val) get().loadStrokeData();
+  },
+  setStrokeStartIndex: (n) => {
+    set((s) => ({ config: { ...s.config, strokeStartIndex: Math.max(0, n) }, currentPage: 0 }));
+    if (get().config.enableStroke) {
+      get().loadStrokeData();
+    }
   },
   setBackgroundColor: (color) =>
     set((s) => ({ config: { ...s.config, backgroundColor: color } })),
@@ -264,14 +273,15 @@ export const useCopybookStore = create<CopybookState>((set, get) => ({
     })),
 
   loadStrokeData: async () => {
-    const { sourceText, bihuaLimit, includePunctuation } = get().config;
+    const { sourceText, bihuaLimit, strokeStartIndex, includePunctuation } = get().config;
     if (!sourceText) return;
 
     set({ strokeDataLoading: true });
     try {
       const chars = extractHanzi(sourceText, includePunctuation);
       const limit = bihuaLimit ?? 12;
-      const charsToProcess = chars.slice(0, limit);
+      const start = strokeStartIndex ?? 0;
+      const charsToProcess = chars.slice(start, start + limit);
       
       const charsToLoad: string[] = [];
       for (const ch of charsToProcess) {

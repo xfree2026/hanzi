@@ -99,6 +99,7 @@ export default function SettingsPanel() {
   const setCharset = useCopybookStore((s) => s.setCharset);
   const setEnableStroke = useCopybookStore((s) => s.setEnableStroke);
   const setBihuaLimit = useCopybookStore((s) => s.setBihuaLimit);
+  const setStrokeStartIndex = useCopybookStore((s) => s.setStrokeStartIndex);
   const setCharsPerRow = useCopybookStore((s) => s.setCharsPerRow);
   const setRowsPerPage = useCopybookStore((s) => s.setRowsPerPage);
   const setCellSize = useCopybookStore((s) => s.setCellSize);
@@ -203,7 +204,16 @@ export default function SettingsPanel() {
                 按笔顺将单字展开为多格，每格增加一笔。
                 当前笔用红色高亮（需联网加载数据）。
               </p>
-              <div className="pt-2">
+              <div className="pt-2 space-y-3">
+                <Slider
+                  label="起始字位置"
+                  value={config.strokeStartIndex ?? 0}
+                  min={0}
+                  max={1000}
+                  step={1}
+                  onChange={setStrokeStartIndex}
+                  icon={<Columns3 className="h-3 w-3" />}
+                />
                 <Slider
                   label="处理字数"
                   value={config.bihuaLimit ?? 12}
@@ -212,6 +222,20 @@ export default function SettingsPanel() {
                   onChange={setBihuaLimit}
                   icon={<PencilLine className="h-3 w-3" />}
                 />
+                <div className="flex gap-2">
+                  <button 
+                    onClick={() => setStrokeStartIndex(Math.max(0, (config.strokeStartIndex ?? 0) - (config.bihuaLimit ?? 12)))}
+                    className="flex-1 rounded border border-cinnabar/30 bg-white/50 px-2 py-1.5 text-[11px] text-cinnabar-dark hover:bg-cinnabar/10 transition"
+                  >
+                    上一组
+                  </button>
+                  <button 
+                    onClick={() => setStrokeStartIndex((config.strokeStartIndex ?? 0) + (config.bihuaLimit ?? 12))}
+                    className="flex-1 rounded border border-cinnabar/30 bg-white/50 px-2 py-1.5 text-[11px] text-cinnabar-dark hover:bg-cinnabar/10 transition"
+                  >
+                    下一组
+                  </button>
+                </div>
               </div>
             </div>
           )}

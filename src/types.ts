@@ -64,6 +64,8 @@ export interface CopybookConfig {
   includePunctuation: boolean;
   /** 启用笔画展开模式 */
   enableStroke: boolean;
+  /** 笔画模式的起始字符索引 */
+  strokeStartIndex: number;
   /** 纸张背景色（null 表示白色/无背景色） */
   backgroundColor: string | null;
   /** 笔画模式字数限制，避免性能卡顿 */
