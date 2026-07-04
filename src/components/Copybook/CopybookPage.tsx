@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import type { CopybookConfig, CopybookPage } from "@/types";
-import { getGridStyle } from "./gridStyles";
+import { getGridStyle, bihuaChar } from "./gridStyles";
 import type { StrokeData } from "@/utils/strokeData";
 
 interface CopybookPageProps {
@@ -111,22 +111,42 @@ export default function CopybookPageView({
       <g key={`${rowIdx}-${colIdx}`}>
         {bgRect}
         {gridStyle.renderBackground(cellSize, x, y)}
-        {gridStyle.renderChar(
-          {
-            simplified: char,
-            traditional: charTraditional,
-            charset: config.charset,
-            layout: config.layout,
-            bilingualDisplay,
-            strokePaths,
-            strokeStep,
-            strokeTotal,
-          },
-          cellSize,
-          config.font,
-          config.showPinyin,
-          x,
-          y
+        {config.enableStroke && strokeStep && strokeTotal ? (
+          bihuaChar(
+            {
+              simplified: char,
+              traditional: charTraditional,
+              charset: config.charset,
+              layout: config.layout,
+              bilingualDisplay,
+              strokePaths,
+              strokeStep,
+              strokeTotal,
+            },
+            cellSize,
+            config.font,
+            config.showPinyin,
+            x,
+            y
+          )
+        ) : (
+          gridStyle.renderChar(
+            {
+              simplified: char,
+              traditional: charTraditional,
+              charset: config.charset,
+              layout: config.layout,
+              bilingualDisplay,
+              strokePaths,
+              strokeStep,
+              strokeTotal,
+            },
+            cellSize,
+            config.font,
+            config.showPinyin,
+            x,
+            y
+          )
         )}
       </g>
     );

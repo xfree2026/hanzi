@@ -12,7 +12,7 @@ export default function PreviewCanvas() {
   const strokeDataLoading = useCopybookStore((s) => s.strokeDataLoading);
 
   const pages = useMemo(
-    () => paginate(config, config.gridStyle === "bihua" ? strokeDataMap : undefined),
+    () => paginate(config, config.enableStroke ? strokeDataMap : undefined),
     [config, strokeDataMap],
   );
 
@@ -24,7 +24,7 @@ export default function PreviewCanvas() {
     return "自定义字帖";
   }, [config.resourceId]);
 
-  const isLoading = loadingResource || (config.gridStyle === "bihua" && strokeDataLoading);
+  const isLoading = loadingResource || (config.enableStroke && strokeDataLoading);
 
   return (
     <main className="copybook-print-area relative flex h-full flex-1 flex-col overflow-hidden bg-paper">

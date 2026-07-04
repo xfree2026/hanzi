@@ -43,6 +43,7 @@ interface CopybookState {
   setFont: (font: string) => void;
   togglePinyin: () => void;
   toggleTitle: () => void;
+  setEnableStroke: (val: boolean) => void;
   setBackgroundColor: (color: string | null) => void;
   setBihuaLimit: (n: number) => void;
   setCurrentPage: (n: number) => void;
@@ -73,6 +74,7 @@ const DEFAULT_CONFIG: CopybookConfig = {
   font: 'STKaiti, "KaiTi", "楷体", "Noto Serif SC", serif',
   showPinyin: false,
   showTitle: true,
+  enableStroke: false,
   backgroundColor: null,
   bihuaLimit: 12,
   illustration: { url: null, position: null },
@@ -109,7 +111,7 @@ export const useCopybookStore = create<CopybookState>((set, get) => ({
           loadingResource: false,
         }));
         // 笔画模式下自动加载笔画数据
-        if (get().config.gridStyle === "bihua") {
+        if (get().config.enableStroke) {
           get().loadStrokeData();
         }
         return;
@@ -130,7 +132,7 @@ export const useCopybookStore = create<CopybookState>((set, get) => ({
         loadingResource: false,
       }));
       // 笔画模式下自动加载笔画数据
-      if (get().config.gridStyle === "bihua") {
+      if (get().config.enableStroke) {
         get().loadStrokeData();
       }
     } catch (e) {
@@ -152,23 +154,19 @@ export const useCopybookStore = create<CopybookState>((set, get) => ({
       currentPage: 0,
     }));
     // 笔画模式下自动加载笔画数据
-    if (get().config.gridStyle === "bihua") {
+    if (get().config.enableStroke) {
       get().loadStrokeData();
     }
   },
 
   setGridStyle: (id) => {
     set((s) => ({ config: { ...s.config, gridStyle: id } }));
-    // 切换到笔画模式时加载笔画数据
-    if (id === "bihua") {
-      get().loadStrokeData();
-    }
   },
   setLayout: (mode) =>
     set((s) => ({ config: { ...s.config, layout: mode }, currentPage: 0 })),
   setCharset: (mode) => {
     set((s) => ({ config: { ...s.config, charset: mode } }));
-    if (get().config.gridStyle === "bihua") {
+    if (get().config.enableStroke) {
       get().loadStrokeData();
     }
   },
@@ -191,6 +189,10 @@ export const useCopybookStore = create<CopybookState>((set, get) => ({
     set((s) => ({ config: { ...s.config, showPinyin: !s.config.showPinyin } })),
   toggleTitle: () =>
     set((s) => ({ config: { ...s.config, showTitle: !s.config.showTitle } })),
+  setEnableStroke: (val) => {
+    set((s) => ({ config: { ...s.config, enableStroke: val }, currentPage: 0 }));
+    if (val) get().loadStrokeData();
+  },
   setBackgroundColor: (color) =>
     set((s) => ({ config: { ...s.config, backgroundColor: color } })),
   setBihuaLimit: (n) => {
@@ -198,7 +200,7 @@ export const useCopybookStore = create<CopybookState>((set, get) => ({
       config: { ...s.config, bihuaLimit: Math.max(1, Math.min(200, n)) },
       currentPage: 0,
     }));
-    if (get().config.gridStyle === "bihua") {
+    if (get().config.enableStroke) {
       get().loadStrokeData();
     }
   },

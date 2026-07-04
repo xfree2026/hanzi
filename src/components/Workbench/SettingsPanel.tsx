@@ -36,7 +36,6 @@ const GRID_ICONS: Record<GridStyleId, React.ReactNode> = {
   lunkuo: <PencilLine className="h-4 w-4" />,
   shixin: <Type className="h-4 w-4" />,
   blank: <Square className="h-4 w-4" />,
-  bihua: <PencilLine className="h-4 w-4" />,
 };
 
 /** 背景色预设 */
@@ -98,6 +97,8 @@ export default function SettingsPanel() {
   const setGridStyle = useCopybookStore((s) => s.setGridStyle);
   const setLayout = useCopybookStore((s) => s.setLayout);
   const setCharset = useCopybookStore((s) => s.setCharset);
+  const setEnableStroke = useCopybookStore((s) => s.setEnableStroke);
+  const setBihuaLimit = useCopybookStore((s) => s.setBihuaLimit);
   const setCharsPerRow = useCopybookStore((s) => s.setCharsPerRow);
   const setRowsPerPage = useCopybookStore((s) => s.setRowsPerPage);
   const setCellSize = useCopybookStore((s) => s.setCellSize);
@@ -186,20 +187,39 @@ export default function SettingsPanel() {
               );
             })}
           </div>
-          {config.gridStyle === "bihua" && (
-            <div className="mt-2 space-y-2 rounded-md border border-cinnabar/30 bg-cinnabar/5 px-2.5 py-2">
+        </section>
+
+        {/* 笔画展开模式 */}
+        <section className="space-y-3">
+          <h3 className="mb-2 flex items-center gap-1.5 text-[11px] uppercase tracking-[0.2em] text-aloes-deep">
+            <PencilLine className="h-3 w-3" /> 笔画展开模式
+          </h3>
+          <label className="flex cursor-pointer items-center justify-between rounded-md border border-ink-200/50 bg-paper/60 px-3 py-2">
+            <span className="text-[12px] text-ink-700">开启笔画展开</span>
+            <input
+              type="checkbox"
+              checked={config.enableStroke}
+              onChange={(e) => setEnableStroke(e.target.checked)}
+              className="h-4 w-4 accent-cinnabar"
+            />
+          </label>
+          
+          {config.enableStroke && (
+            <div className="space-y-2 rounded-md border border-cinnabar/30 bg-cinnabar/5 px-3 py-2.5">
               <p className="text-[10px] leading-relaxed text-cinnabar-dark">
-                笔画模式：每个字按笔顺展开为多格。
-                当前笔用红色高亮，需联网加载数据。
+                按笔顺将单字展开为多格，每格增加一笔。
+                当前笔用红色高亮（需联网加载数据）。
               </p>
-              <Slider
-                label="处理字数"
-                value={config.bihuaLimit ?? 12}
-                min={1}
-                max={100}
-                onChange={useCopybookStore((s) => s.setBihuaLimit)}
-                icon={<PencilLine className="h-3 w-3" />}
-              />
+              <div className="pt-2">
+                <Slider
+                  label="处理字数"
+                  value={config.bihuaLimit ?? 12}
+                  min={1}
+                  max={100}
+                  onChange={setBihuaLimit}
+                  icon={<PencilLine className="h-3 w-3" />}
+                />
+              </div>
             </div>
           )}
         </section>

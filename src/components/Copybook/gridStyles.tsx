@@ -319,7 +319,7 @@ const lunkuoChar: CharRenderer = (input, size, font, showPinyin, ox, oy) => {
  * 坐标系转换：原始数据 1024×1024，Y轴向上，范围 (0,-124)→(1024,900)
  * 转换到 cellSize×cellSize 的 SVG 坐标系（Y轴向下）。
  */
-const bihuaChar: CharRenderer = (input, size, font, showPinyin, ox, oy) => {
+export const bihuaChar: CharRenderer = (input, size, font, showPinyin, ox, oy) => {
   const { strokePaths, strokeStep, strokeTotal } = input;
 
   // 无笔画数据时回退为空
@@ -362,13 +362,6 @@ const bihuaChar: CharRenderer = (input, size, font, showPinyin, ox, oy) => {
 // 字格底纹与字模可任意组合，这里提供常用预设。
 
 export const GRID_STYLES: GridStyle[] = [
-  {
-    id: "bihua",
-    name: "★ 笔画展开",
-    description: "按笔顺逐笔显示，每字按笔画展开为多格。",
-    renderBackground: miBackground,
-    renderChar: bihuaChar,
-  },
   {
     id: "tian",
     name: "田字格 · 实心字",

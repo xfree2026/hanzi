@@ -22,8 +22,7 @@ export type GridStyleId =
   | "miaohong"
   | "lunkuo"
   | "shixin"
-  | "blank"
-  | "bihua";
+  | "blank";
 
 /** 版式 */
 export type LayoutMode = "horizontal-lr" | "vertical-rl";
@@ -61,6 +60,8 @@ export interface CopybookConfig {
   font: string;
   showPinyin: boolean;
   showTitle: boolean;
+  /** 启用笔画展开模式 */
+  enableStroke: boolean;
   /** 纸张背景色（null 表示白色/无背景色） */
   backgroundColor: string | null;
   /** 笔画模式字数限制，避免性能卡顿 */

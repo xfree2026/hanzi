@@ -62,7 +62,7 @@ export function paginate(
   });
 
   // ===== 笔画模式 =====
-  if (gridStyle === "bihua" && strokeDataMap && strokeDataMap.size > 0) {
+  if (config.enableStroke && strokeDataMap && strokeDataMap.size > 0) {
     // 笔画模式：每个字展开为 strokeCount + 1 个格子
     // 生成扁平化的 Cell 列表，再按行列分页
     const expandedCells: Cell[] = [];
