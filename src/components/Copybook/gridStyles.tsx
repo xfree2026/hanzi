@@ -95,40 +95,23 @@ const CHAR_LUNKUO_STROKE = "rgba(31, 28, 24, 0.5)";
 const BIHUA_DONE = "rgba(31, 28, 24, 0.75)";
 const BIHUA_CURRENT = "rgba(192, 57, 43, 0.85)";
 
-export type BackgroundRenderer = (size: number, ox: number, oy: number, id: string) => JSX.Element;
-export type DefsRenderer = (size: number, id: string) => JSX.Element;
+export type BackgroundRenderer = (size: number, ox: number, oy: number) => JSX.Element;
 export type CharRenderer = (input: CharRenderInput, size: number, font: string, showPinyin: boolean, ox: number, oy: number) => JSX.Element;
 
 // ===== 底纹渲染 =====
 
 const blankBackground: BackgroundRenderer = () => <></>;
 
-const tianDefs: DefsRenderer = (size, id) => (
-  <g id={`grid-${id}`}>
-    <rect
-      x={0}
-      y={0}
-      width={size}
-      height={size}
+const tianBackground: BackgroundRenderer = (size, ox, oy) => (
+  <g>
+    <path
+      d={`M ${ox} ${oy} h ${size} v ${size} h ${-size} Z`}
       stroke={GRID_STROKE}
       fill="none"
       strokeWidth={1.2}
     />
-    <line
-      x1={size / 2}
-      y1={0}
-      x2={size / 2}
-      y2={size}
-      stroke={GRID_MI_STROKE}
-      fill="none"
-      strokeWidth={0.8}
-      strokeDasharray="3 3"
-    />
-    <line
-      x1={0}
-      y1={size / 2}
-      x2={size}
-      y2={size / 2}
+    <path
+      d={`M ${ox + size / 2} ${oy} v ${size} M ${ox} ${oy + size / 2} h ${size}`}
       stroke={GRID_MI_STROKE}
       fill="none"
       strokeWidth={0.8}
@@ -137,122 +120,43 @@ const tianDefs: DefsRenderer = (size, id) => (
   </g>
 );
 
-const tianBackground: BackgroundRenderer = (size, ox, oy, id) => (
-  <use href={`#grid-${id}`} transform={`translate(${ox}, ${oy})`} />
-);
-
-const miDefs: DefsRenderer = (size, id) => (
-  <g id={`grid-${id}`}>
-    <rect
-      x={0}
-      y={0}
-      width={size}
-      height={size}
+const miBackground: BackgroundRenderer = (size, ox, oy) => (
+  <g>
+    <path
+      d={`M ${ox} ${oy} h ${size} v ${size} h ${-size} Z`}
       stroke={GRID_STROKE}
       fill="none"
       strokeWidth={1.2}
     />
-    <line
-      x1={size / 2}
-      y1={0}
-      x2={size / 2}
-      y2={size}
+    <path
+      d={`M ${ox + size / 2} ${oy} v ${size} M ${ox} ${oy + size / 2} h ${size} M ${ox} ${oy} L ${ox + size} ${oy + size} M ${ox + size} ${oy} L ${ox} ${oy + size}`}
       stroke={GRID_MI_STROKE}
       fill="none"
       strokeWidth={0.7}
-      strokeDasharray="2 3"
-    />
-    <line
-      x1={0}
-      y1={size / 2}
-      x2={size}
-      y2={size / 2}
-      stroke={GRID_MI_STROKE}
-      fill="none"
-      strokeWidth={0.7}
-      strokeDasharray="2 3"
-    />
-    <line
-      x1={0}
-      y1={0}
-      x2={size}
-      y2={size}
-      stroke={GRID_MI_STROKE}
-      fill="none"
-      strokeWidth={0.6}
-      strokeDasharray="2 3"
-    />
-    <line
-      x1={size}
-      y1={0}
-      x2={0}
-      y2={size}
-      stroke={GRID_MI_STROKE}
-      fill="none"
-      strokeWidth={0.6}
       strokeDasharray="2 3"
     />
   </g>
 );
 
-const miBackground: BackgroundRenderer = (size, ox, oy, id) => (
-  <use href={`#grid-${id}`} transform={`translate(${ox}, ${oy})`} />
-);
-
-const jiugongDefs: DefsRenderer = (size, id) => {
+const jiugongBackground: BackgroundRenderer = (size, ox, oy) => {
   const step = size / 3;
   return (
-    <g id={`grid-${id}`}>
-      <rect
-        x={0}
-        y={0}
-        width={size}
-        height={size}
+    <g>
+      <path
+        d={`M ${ox} ${oy} h ${size} v ${size} h ${-size} Z`}
         stroke={GRID_STROKE}
         fill="none"
         strokeWidth={1.2}
       />
-      {[1, 2].map((i) => (
-        <line
-          key={`v${i}`}
-          x1={step * i}
-          y1={0}
-          x2={step * i}
-          y2={size}
-          stroke={GRID_MI_STROKE}
-          fill="none"
-          strokeWidth={0.7}
-          strokeDasharray="2 3"
-        />
-      ))}
-      {[1, 2].map((i) => (
-        <line
-          key={`h${i}`}
-          x1={0}
-          y1={step * i}
-          x2={size}
-          y2={step * i}
-          stroke={GRID_MI_STROKE}
-          fill="none"
-          strokeWidth={0.7}
-          strokeDasharray="2 3"
-        />
-      ))}
-      <line
-        x1={size / 2}
-        y1={0}
-        x2={size / 2}
-        y2={size}
+      <path
+        d={`M ${ox + step} ${oy} v ${size} M ${ox + step * 2} ${oy} v ${size} M ${ox} ${oy + step} h ${size} M ${ox} ${oy + step * 2} h ${size}`}
         stroke={GRID_MI_STROKE}
         fill="none"
-        strokeWidth={0.5}
-        strokeDasharray="1 4"
+        strokeWidth={0.7}
+        strokeDasharray="2 3"
       />
-      <line
-        x1={0}
-        y1={size / 2}
-        x2={size}
-        y2={size / 2}
+      <path
+        d={`M ${ox + size / 2} ${oy} v ${size} M ${ox} ${oy + size / 2} h ${size}`}
         stroke={GRID_MI_STROKE}
         fill="none"
         strokeWidth={0.5}
@@ -261,10 +165,6 @@ const jiugongDefs: DefsRenderer = (size, id) => {
     </g>
   );
 };
-
-const jiugongBackground: BackgroundRenderer = (size, ox, oy, id) => (
-  <use href={`#grid-${id}`} transform={`translate(${ox}, ${oy})`} />
-);
 
 // ===== 字模渲染 =====
 
@@ -437,7 +337,6 @@ export const GRID_STYLES: GridStyle[] = [
     id: "tian",
     name: "田字格 · 实心字",
     description: "标准田字格底纹 + 实心字模，适合初学临写。",
-    renderDefs: tianDefs,
     renderBackground: tianBackground,
     renderChar: shixinChar,
   },
@@ -445,7 +344,6 @@ export const GRID_STYLES: GridStyle[] = [
     id: "mi",
     name: "米字格 · 实心字",
     description: "米字格带对角辅助线 + 实心字模，便于把握结构。",
-    renderDefs: miDefs,
     renderBackground: miBackground,
     renderChar: shixinChar,
   },
@@ -453,7 +351,6 @@ export const GRID_STYLES: GridStyle[] = [
     id: "jiugong",
     name: "九宫格 · 实心字",
     description: "九宫格细分 + 实心字模，结构比例一目了然。",
-    renderDefs: jiugongDefs,
     renderBackground: jiugongBackground,
     renderChar: shixinChar,
   },
@@ -461,7 +358,6 @@ export const GRID_STYLES: GridStyle[] = [
     id: "miaohong",
     name: "米字格 · 描红",
     description: "米字格 + 浅红色字模，依红色笔迹描摹。",
-    renderDefs: miDefs,
     renderBackground: miBackground,
     renderChar: miaohongChar,
   },
@@ -469,7 +365,6 @@ export const GRID_STYLES: GridStyle[] = [
     id: "lunkuo",
     name: "米字格 · 字形轮廓",
     description: "米字格 + 仅字形描边，供中级临摹掌握间架。",
-    renderDefs: miDefs,
     renderBackground: miBackground,
     renderChar: lunkuoChar,
   },
@@ -477,7 +372,6 @@ export const GRID_STYLES: GridStyle[] = [
     id: "shixin",
     name: "田字格 · 黑色字模",
     description: "田字格 + 较深的黑色字模，对临参照。",
-    renderDefs: tianDefs,
     renderBackground: tianBackground,
     renderChar: shixinChar,
   },
@@ -485,7 +379,6 @@ export const GRID_STYLES: GridStyle[] = [
     id: "blank",
     name: "空白米字格",
     description: "仅米字格底纹，无字模，自由书写。",
-    renderDefs: miDefs,
     renderBackground: miBackground,
     renderChar: blankChar,
   },
