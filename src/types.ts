@@ -76,6 +76,8 @@ export interface Cell {
   index: number;
   /** 是否占位空格 */
   placeholder: boolean;
+  /** bilingual 模式下该字格显示简体还是繁体（其他模式为 null） */
+  bilingualDisplay: "simplified" | "traditional" | null;
 }
 
 /** 单页字帖 */
@@ -96,6 +98,8 @@ export interface CharRenderInput {
   charset: CharsetMode;
   /** 排版方向：影响 bilingual 对照的分隔方向（横排上下 / 竖排左右） */
   layout: LayoutMode;
+  /** bilingual 模式下该字格显示简体还是繁体（其他模式为 null） */
+  bilingualDisplay: "simplified" | "traditional" | null;
 }
 
 /** 字格样式接口（插件化） */
