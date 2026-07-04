@@ -1,4 +1,3 @@
-import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useMemo } from "react";
 import CopybookPageView from "@/components/Copybook/CopybookPage";
 import { useCopybookStore } from "@/store/useCopybookStore";
@@ -7,12 +6,15 @@ import { RESOURCES } from "@/data/resources";
 
 export default function PreviewCanvas() {
   const config = useCopybookStore((s) => s.config);
-  const currentPage = useCopybookStore((s) => s.currentPage);
-  const setCurrentPage = useCopybookStore((s) => s.setCurrentPage);
   const loadingResource = useCopybookStore((s) => s.loadingResource);
   const loadError = useCopybookStore((s) => s.loadError);
+  const strokeDataMap = useCopybookStore((s) => s.strokeDataMap);
+  const strokeDataLoading = useCopybookStore((s) => s.strokeDataLoading);
 
-  const pages = useMemo(() => paginate(config), [config]);
+  const pages = useMemo(
+    () => paginate(config, config.gridStyle === "bihua" ? strokeDataMap : undefined),
+    [config, strokeDataMap],
+  );
 
   const title = useMemo(() => {
     if (config.resourceId) {
@@ -22,53 +24,47 @@ export default function PreviewCanvas() {
     return "自定义字帖";
   }, [config.resourceId]);
 
-  const safePageIdx = Math.min(currentPage, pages.length - 1);
-  const page = pages[safePageIdx];
+  const isLoading = loadingResource || (config.gridStyle === "bihua" && strokeDataLoading);
 
   return (
     <main className="copybook-print-area relative flex h-full flex-1 flex-col overflow-hidden bg-paper">
-      {/* 顶部页码工具 */}
+      {/* 顶部信息栏 */}
       <div className="no-print flex items-center justify-between border-b border-ink-200/50 bg-paper/70 px-6 py-2 backdrop-blur">
         <span className="text-[11px] text-ink-500">
-          {loadingResource ? "正在加载资源…" : `共 ${pages.length} 页 · 每页 A4`}
+          {isLoading ? "正在加载…" : `共 ${pages.length} 页 · 每页 A4`}
         </span>
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => setCurrentPage(safePageIdx - 1)}
-            disabled={safePageIdx <= 0}
-            className="rounded-md border border-ink-200/60 bg-paper p-1.5 text-ink-600 transition hover:border-aloes/50 hover:text-aloes-deep disabled:cursor-not-allowed disabled:opacity-40"
-          >
-            <ChevronLeft className="h-4 w-4" />
-          </button>
-          <span className="min-w-[5rem] text-center font-mono text-[12px] text-ink-700">
-            {safePageIdx + 1} / {pages.length}
-          </span>
-          <button
-            onClick={() => setCurrentPage(safePageIdx + 1)}
-            disabled={safePageIdx >= pages.length - 1}
-            className="rounded-md border border-ink-200/60 bg-paper p-1.5 text-ink-600 transition hover:border-aloes/50 hover:text-aloes-deep disabled:cursor-not-allowed disabled:opacity-40"
-          >
-            <ChevronRight className="h-4 w-4" />
-          </button>
-        </div>
       </div>
 
-      {/* 预览画布：仅渲染当前页 */}
+      {/* 预览画布：渲染所有页面，可滚动查看 */}
       <div className="relative flex-1 overflow-auto">
         {loadError ? (
           <div className="flex h-full items-center justify-center text-cinnabar-dark">
             加载失败：{loadError}
           </div>
-        ) : loadingResource ? (
+        ) : isLoading ? (
           <div className="flex h-full items-center justify-center">
             <div className="h-8 w-8 animate-spin rounded-full border-2 border-aloes/30 border-t-aloes" />
           </div>
         ) : (
-          <div className="flex flex-col items-center px-6 py-8">
-            {/* 当前预览页：A4 比例容器，让用户直观看到打印效果 */}
-            <div className="preview-page no-print aspect-[210/297] w-full max-w-[820px] overflow-hidden rounded-sm border border-ink-200/40 bg-white shadow-paper">
-              <CopybookPageView page={page} config={config} title={title} responsive />
-            </div>
+          <div className="flex flex-col items-center gap-8 px-6 py-8">
+            {pages.map((p) => (
+              <div key={p.index} className="w-full max-w-[820px]">
+                {/* 页码标签 */}
+                <div className="no-print mb-2 text-center text-[10px] text-ink-400">
+                  第 {p.index + 1} / {pages.length} 页
+                </div>
+                {/* A4 比例容器 */}
+                <div className="preview-page no-print aspect-[210/297] w-full overflow-hidden rounded-sm border border-ink-200/40 bg-white shadow-paper">
+                  <CopybookPageView
+                    page={p}
+                    config={config}
+                    title={title}
+                    strokeDataMap={strokeDataMap}
+                    responsive
+                  />
+                </div>
+              </div>
+            ))}
           </div>
         )}
       </div>
@@ -78,18 +74,17 @@ export default function PreviewCanvas() {
         {pages.map((p) => (
           <div key={p.index} className="print-page">
             <div className="print-page-inner">
-              <CopybookPageView page={p} config={config} title={title} responsive />
+              <CopybookPageView
+                page={p}
+                config={config}
+                title={title}
+                strokeDataMap={strokeDataMap}
+                responsive
+              />
             </div>
           </div>
         ))}
       </div>
-
-      {/* 当前页提示（非打印） */}
-      {!loadingResource && !loadError && (
-        <div className="no-print pointer-events-none absolute bottom-4 right-6 rounded-full bg-ink-900/70 px-3 py-1 text-[11px] text-paper backdrop-blur">
-          当前预览第 {safePageIdx + 1} 页 · 点击打印可导出全部 {pages.length} 页
-        </div>
-      )}
     </main>
   );
 }

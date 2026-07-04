@@ -7,7 +7,7 @@ import Toolbar from "@/components/Workbench/Toolbar";
 
 export default function Home() {
   return (
-    <div className="flex h-screen w-screen flex-col overflow-hidden">
+    <div className="app-root flex h-screen w-screen flex-col overflow-hidden">
       <Toolbar />
       <div className="flex min-h-0 flex-1">
         <ResourcePanel />

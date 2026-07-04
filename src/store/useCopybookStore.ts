@@ -8,6 +8,8 @@ import type {
   LayoutMode,
 } from "@/types";
 import { RESOURCES, loadResourceText } from "@/data/resources";
+import { preloadStrokes, type StrokeData } from "@/utils/strokeData";
+import { extractHanzi } from "@/generator/textProcessor";
 
 interface CopybookState {
   config: CopybookConfig;
@@ -24,6 +26,10 @@ interface CopybookState {
   /** AI 配图生成中 */
   aiGenerating: boolean;
   aiError: string | null;
+  /** 笔画数据 Map<字符, StrokeData> */
+  strokeDataMap: Map<string, StrokeData>;
+  /** 笔画数据加载中 */
+  strokeDataLoading: boolean;
 
   setResource: (id: string | null) => Promise<void>;
   setCustomText: (text: string) => void;
@@ -36,6 +42,7 @@ interface CopybookState {
   setFont: (font: string) => void;
   togglePinyin: () => void;
   toggleTitle: () => void;
+  setBackgroundColor: (color: string | null) => void;
   setCurrentPage: (n: number) => void;
   openResourceModal: (id: string) => void;
   closeResourceModal: () => void;
@@ -47,6 +54,8 @@ interface CopybookState {
     position: IllustrationPosition,
   ) => Promise<void>;
   clearIllustration: () => void;
+  /** 加载笔画数据 */
+  loadStrokeData: () => Promise<void>;
 }
 
 const DEFAULT_CONFIG: CopybookConfig = {
@@ -62,6 +71,7 @@ const DEFAULT_CONFIG: CopybookConfig = {
   font: 'STKaiti, "KaiTi", "楷体", "Noto Serif SC", serif',
   showPinyin: false,
   showTitle: true,
+  backgroundColor: null,
   illustration: { url: null, position: null },
 };
 
@@ -82,6 +92,8 @@ export const useCopybookStore = create<CopybookState>((set, get) => ({
   aiDialogOpen: false,
   aiGenerating: false,
   aiError: null,
+  strokeDataMap: new Map(),
+  strokeDataLoading: false,
 
   setResource: async (id) => {
     set({ loadingResource: true, loadError: null, currentPage: 0 });
@@ -93,6 +105,10 @@ export const useCopybookStore = create<CopybookState>((set, get) => ({
           config: { ...s.config, resourceId: null, sourceText: text },
           loadingResource: false,
         }));
+        // 笔画模式下自动加载笔画数据
+        if (get().config.gridStyle === "bihua") {
+          get().loadStrokeData();
+        }
         return;
       }
       const resource = RESOURCES.find((r) => r.id === id);
@@ -110,6 +126,10 @@ export const useCopybookStore = create<CopybookState>((set, get) => ({
         },
         loadingResource: false,
       }));
+      // 笔画模式下自动加载笔画数据
+      if (get().config.gridStyle === "bihua") {
+        get().loadStrokeData();
+      }
     } catch (e) {
       set({
         loadingResource: false,
@@ -118,7 +138,7 @@ export const useCopybookStore = create<CopybookState>((set, get) => ({
     }
   },
 
-  setCustomText: (text) =>
+  setCustomText: (text) => {
     set((s) => ({
       config: {
         ...s.config,
@@ -127,10 +147,20 @@ export const useCopybookStore = create<CopybookState>((set, get) => ({
         sourceText: text,
       },
       currentPage: 0,
-    })),
+    }));
+    // 笔画模式下自动加载笔画数据
+    if (get().config.gridStyle === "bihua") {
+      get().loadStrokeData();
+    }
+  },
 
-  setGridStyle: (id) =>
-    set((s) => ({ config: { ...s.config, gridStyle: id } })),
+  setGridStyle: (id) => {
+    set((s) => ({ config: { ...s.config, gridStyle: id } }));
+    // 切换到笔画模式时加载笔画数据
+    if (id === "bihua") {
+      get().loadStrokeData();
+    }
+  },
   setLayout: (mode) =>
     set((s) => ({ config: { ...s.config, layout: mode }, currentPage: 0 })),
   setCharset: (mode) =>
@@ -154,6 +184,8 @@ export const useCopybookStore = create<CopybookState>((set, get) => ({
     set((s) => ({ config: { ...s.config, showPinyin: !s.config.showPinyin } })),
   toggleTitle: () =>
     set((s) => ({ config: { ...s.config, showTitle: !s.config.showTitle } })),
+  setBackgroundColor: (color) =>
+    set((s) => ({ config: { ...s.config, backgroundColor: color } })),
   setCurrentPage: (n) => set({ currentPage: Math.max(0, n) }),
 
   openResourceModal: (id) =>
@@ -201,6 +233,20 @@ export const useCopybookStore = create<CopybookState>((set, get) => ({
         illustration: { url: null, position: null },
       },
     })),
+
+  loadStrokeData: async () => {
+    const { sourceText } = get().config;
+    if (!sourceText) return;
+
+    set({ strokeDataLoading: true });
+    try {
+      const chars = extractHanzi(sourceText);
+      const map = await preloadStrokes(chars);
+      set({ strokeDataMap: map, strokeDataLoading: false });
+    } catch {
+      set({ strokeDataLoading: false });
+    }
+  },
 }));
 
 // 初始化时加载默认资源

@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import type { CopybookConfig, CopybookPage } from "@/types";
 import { getGridStyle } from "./gridStyles";
+import type { StrokeData } from "@/utils/strokeData";
 
 interface CopybookPageProps {
   page: CopybookPage;
@@ -9,31 +10,65 @@ interface CopybookPageProps {
   title: string;
   /** 响应式铺满父容器（打印时使用，SVG 用 100% 宽高 + preserveAspectRatio） */
   responsive?: boolean;
+  /** 笔画数据（笔画模式使用） */
+  strokeDataMap?: Map<string, StrokeData>;
 }
 
 /**
  * 单页字帖 SVG 渲染。
  * 横排：行从上到下、字从左到右。
  * 竖排：列从右到左、字从上到下（传统竖写）。
+ *
+ * viewBox 按 A4 纸比例（210:297）计算，字格区域居中放置，
+ * 背景色覆盖整个 viewBox，确保全页填充无白边。
  */
 export default function CopybookPageView({
   page,
   config,
   title,
   responsive = false,
+  strokeDataMap,
 }: CopybookPageProps) {
   const gridStyle = getGridStyle(config.gridStyle);
   const cellSize = config.cellSize;
-  const padX = 32;
-  const padY = 32;
+
+  // 字格区域尺寸
+  const gridW = config.charsPerRow * cellSize;
+  const gridH = config.rowsPerPage * cellSize;
+
   const headerH = config.showTitle ? 40 : 0;
   const footerH = 28;
 
-  const { width, height } = useMemo(() => {
-    const w = config.charsPerRow * cellSize + padX * 2;
-    const h = config.rowsPerPage * cellSize + padY * 2 + headerH + footerH;
-    return { width: w, height: h };
-  }, [config.charsPerRow, config.rowsPerPage, cellSize, headerH]);
+  // 使用 A4 比例的 viewBox，字格区域居中
+  const { vbWidth, vbHeight, padX, padY } = useMemo(() => {
+    // 字格 + 页眉页脚所需的最小内容高度
+    const contentH = gridH + headerH + footerH;
+    const contentW = gridW;
+
+    // A4 比例 = 210:297
+    const a4Ratio = 210 / 297;
+
+    // 根据内容尺寸计算 A4 比例的 viewBox
+    // 以内容的宽或高为基准，取较大的那个以确保内容不超出
+    let w: number, h: number;
+    if (contentW / contentH > a4Ratio) {
+      // 内容偏宽：以宽度为基准
+      w = contentW + 48; // 最小左右边距 24px
+      h = w / a4Ratio;
+    } else {
+      // 内容偏高：以高度为基准
+      h = contentH + 48; // 最小上下边距 24px
+      w = h * a4Ratio;
+    }
+
+    // 计算居中的内边距
+    const px = (w - contentW) / 2;
+    const py = (h - contentH) / 2;
+
+    return { vbWidth: w, vbHeight: h, padX: px, padY: py };
+  }, [gridW, gridH, headerH, footerH]);
+
+  const bgColor = config.backgroundColor ?? "#fff";
 
   const renderCell = (
     char: string,
@@ -41,12 +76,15 @@ export default function CopybookPageView({
     rowIdx: number,
     colIdx: number,
     bilingualDisplay: "simplified" | "traditional" | null,
+    strokeStep?: number,
+    strokeTotal?: number,
   ) => {
     const x =
       config.layout === "vertical-rl"
         ? padX + (config.charsPerRow - 1 - colIdx) * cellSize
         : padX + colIdx * cellSize;
     const y = padY + headerH + rowIdx * cellSize;
+
     // bilingual 模式下繁体行/列背景色微调（沉香淡黄褐）
     const bgRect =
       bilingualDisplay === "traditional" ? (
@@ -58,6 +96,15 @@ export default function CopybookPageView({
           fill="rgba(176, 141, 87, 0.10)"
         />
       ) : null;
+
+    // 获取笔画路径数据
+    const displayChar =
+      config.charset === "traditional"
+        ? charTraditional || char
+        : char || charTraditional;
+    const strokeData = strokeDataMap?.get(displayChar);
+    const strokePaths = strokeData?.strokes;
+
     return (
       <g key={`${rowIdx}-${colIdx}`} transform={`translate(${x}, ${y})`}>
         {bgRect}
@@ -69,6 +116,9 @@ export default function CopybookPageView({
             charset: config.charset,
             layout: config.layout,
             bilingualDisplay,
+            strokePaths,
+            strokeStep,
+            strokeTotal,
           },
           cellSize,
           config.font,
@@ -81,18 +131,18 @@ export default function CopybookPageView({
   // 扉页
   if (page.isTitlePage) {
     const img = config.illustration.url;
-    const imgW = width - padX * 2;
-    const imgH = height - padY * 2 - 80;
+    const imgW = vbWidth - padX * 2;
+    const imgH = vbHeight - padY * 2 - 80;
     return (
       <svg
-        width={responsive ? "100%" : width}
-        height={responsive ? "100%" : height}
-        viewBox={`0 0 ${width} ${height}`}
+        width={responsive ? "100%" : vbWidth}
+        height={responsive ? "100%" : vbHeight}
+        viewBox={`0 0 ${vbWidth} ${vbHeight}`}
         preserveAspectRatio="xMidYMid meet"
         xmlns="http://www.w3.org/2000/svg"
-        style={{ background: "#fff", display: "block" }}
+        style={{ display: "block" }}
       >
-        <rect x={0} y={0} width={width} height={height} fill="#fdfaf2" />
+        <rect x={0} y={0} width={vbWidth} height={vbHeight} fill={bgColor} />
         {img && (
           <image
             href={img}
@@ -104,8 +154,8 @@ export default function CopybookPageView({
           />
         )}
         <text
-          x={width / 2}
-          y={height - padY - 12}
+          x={vbWidth / 2}
+          y={vbHeight - padY - 12}
           textAnchor="middle"
           fontFamily={config.font}
           fontSize={32}
@@ -115,8 +165,8 @@ export default function CopybookPageView({
           {title}
         </text>
         <text
-          x={width - padX}
-          y={height - 8}
+          x={vbWidth - padX}
+          y={vbHeight - 8}
           textAnchor="end"
           fontSize={11}
           fill="rgba(31,28,24,0.45)"
@@ -129,19 +179,19 @@ export default function CopybookPageView({
 
   return (
     <svg
-      width={responsive ? "100%" : width}
-      height={responsive ? "100%" : height}
-      viewBox={`0 0 ${width} ${height}`}
+      width={responsive ? "100%" : vbWidth}
+      height={responsive ? "100%" : vbHeight}
+      viewBox={`0 0 ${vbWidth} ${vbHeight}`}
       preserveAspectRatio="xMidYMid meet"
       xmlns="http://www.w3.org/2000/svg"
-      style={{ background: "#fff", display: "block" }}
+      style={{ display: "block" }}
     >
-      <rect x={0} y={0} width={width} height={height} fill="#fdfaf2" />
+      <rect x={0} y={0} width={vbWidth} height={vbHeight} fill={bgColor} />
 
       {/* 页眉标题 */}
       {config.showTitle && (
         <text
-          x={width / 2}
+          x={vbWidth / 2}
           y={padY + headerH / 2 + 4}
           textAnchor="middle"
           fontFamily={config.font}
@@ -158,7 +208,7 @@ export default function CopybookPageView({
         config.illustration.position === "header" && (
           <image
             href={config.illustration.url}
-            x={width - padX - 64}
+            x={vbWidth - padX - 64}
             y={8}
             width={64}
             height={headerH || 40}
@@ -171,7 +221,7 @@ export default function CopybookPageView({
           <image
             href={config.illustration.url}
             x={padX}
-            y={height - footerH - 2}
+            y={vbHeight - footerH - 2}
             width={120}
             height={footerH}
             preserveAspectRatio="xMidYMid meet"
@@ -188,6 +238,8 @@ export default function CopybookPageView({
             rIdx,
             cIdx,
             cell.bilingualDisplay,
+            cell.strokeStep,
+            cell.strokeTotal,
           ),
         ),
       )}
@@ -195,15 +247,15 @@ export default function CopybookPageView({
       {/* 页脚 */}
       <text
         x={padX}
-        y={height - 10}
+        y={vbHeight - 10}
         fontSize={11}
         fill="rgba(31,28,24,0.45)"
       >
         {title}
       </text>
       <text
-        x={width - padX}
-        y={height - 10}
+        x={vbWidth - padX}
+        y={vbHeight - 10}
         textAnchor="end"
         fontSize={11}
         fill="rgba(31,28,24,0.45)"

@@ -22,7 +22,8 @@ export type GridStyleId =
   | "miaohong"
   | "lunkuo"
   | "shixin"
-  | "blank";
+  | "blank"
+  | "bihua";
 
 /** 版式 */
 export type LayoutMode = "horizontal-lr" | "vertical-rl";
@@ -60,6 +61,8 @@ export interface CopybookConfig {
   font: string;
   showPinyin: boolean;
   showTitle: boolean;
+  /** 纸张背景色（null 表示白色/无背景色） */
+  backgroundColor: string | null;
   illustration: {
     url: string | null;
     position: IllustrationPosition;
@@ -78,6 +81,10 @@ export interface Cell {
   placeholder: boolean;
   /** bilingual 模式下该字格显示简体还是繁体（其他模式为 null） */
   bilingualDisplay: "simplified" | "traditional" | null;
+  /** 笔画模式：当前显示到第几笔（1-based） */
+  strokeStep?: number;
+  /** 笔画模式：该字总笔画数 */
+  strokeTotal?: number;
 }
 
 /** 单页字帖 */
@@ -100,6 +107,12 @@ export interface CharRenderInput {
   layout: LayoutMode;
   /** bilingual 模式下该字格显示简体还是繁体（其他模式为 null） */
   bilingualDisplay: "simplified" | "traditional" | null;
+  /** 笔画模式：SVG 笔画路径数组 */
+  strokePaths?: string[];
+  /** 笔画模式：当前显示到第几笔（1-based） */
+  strokeStep?: number;
+  /** 笔画模式：总笔画数 */
+  strokeTotal?: number;
 }
 
 /** 字格样式接口（插件化） */

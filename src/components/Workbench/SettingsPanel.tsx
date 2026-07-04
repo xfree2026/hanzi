@@ -5,6 +5,7 @@ import {
   Hexagon,
   Languages,
   Paintbrush,
+  Palette,
   PencilLine,
   Rows3,
   Square,
@@ -35,7 +36,18 @@ const GRID_ICONS: Record<GridStyleId, React.ReactNode> = {
   lunkuo: <PencilLine className="h-4 w-4" />,
   shixin: <Type className="h-4 w-4" />,
   blank: <Square className="h-4 w-4" />,
+  bihua: <PencilLine className="h-4 w-4" />,
 };
+
+/** 背景色预设 */
+const BG_COLORS = [
+  { label: "无", value: null, color: "#ffffff" },
+  { label: "古纸", value: "#fdfaf2", color: "#fdfaf2" },
+  { label: "暖米", value: "#f5efe1", color: "#f5efe1" },
+  { label: "淡绿", value: "#f0f5ef", color: "#f0f5ef" },
+  { label: "浅灰", value: "#f5f5f5", color: "#f5f5f5" },
+  { label: "杏黄", value: "#fdf6e3", color: "#fdf6e3" },
+];
 
 function Slider({
   label,
@@ -91,6 +103,7 @@ export default function SettingsPanel() {
   const setCellSize = useCopybookStore((s) => s.setCellSize);
   const setFont = useCopybookStore((s) => s.setFont);
   const toggleTitle = useCopybookStore((s) => s.toggleTitle);
+  const setBackgroundColor = useCopybookStore((s) => s.setBackgroundColor);
   const setCustomText = useCopybookStore((s) => s.setCustomText);
   const openAiDialog = useCopybookStore((s) => s.openAiDialog);
   const clearIllustration = useCopybookStore(
@@ -173,6 +186,11 @@ export default function SettingsPanel() {
               );
             })}
           </div>
+          {config.gridStyle === "bihua" && (
+            <p className="mt-2 rounded-md border border-cinnabar/30 bg-cinnabar/5 px-2.5 py-1.5 text-[10px] leading-relaxed text-cinnabar-dark">
+              笔画模式：每个字按笔顺展开为多个字格，逐笔增加显示。当前笔用红色高亮，需联网加载笔画数据。
+            </p>
+          )}
         </section>
 
         {/* 版式 */}
@@ -328,7 +346,7 @@ export default function SettingsPanel() {
         </section>
 
         {/* 显示选项 */}
-        <section>
+        <section className="space-y-3">
           <h3 className="mb-2 flex items-center gap-1.5 text-[11px] uppercase tracking-[0.2em] text-aloes-deep">
             <Square className="h-3 w-3" /> 显示
           </h3>
@@ -341,6 +359,40 @@ export default function SettingsPanel() {
               className="h-4 w-4 accent-cinnabar"
             />
           </label>
+
+          {/* 纸张背景色 */}
+          <div>
+            <label className="mb-1.5 flex items-center gap-1.5 text-[12px] text-ink-600">
+              <Palette className="h-3 w-3" />
+              纸张背景色
+            </label>
+            <div className="flex flex-wrap gap-2">
+              {BG_COLORS.map((bg) => {
+                const active =
+                  config.backgroundColor === bg.value ||
+                  (config.backgroundColor === null && bg.value === null);
+                return (
+                  <button
+                    key={bg.label}
+                    onClick={() => setBackgroundColor(bg.value)}
+                    className={cn(
+                      "flex flex-col items-center gap-1 rounded-md border px-2 py-1.5 transition",
+                      active
+                        ? "border-cinnabar/50 bg-cinnabar/5"
+                        : "border-ink-200/50 bg-paper/60 hover:border-aloes/50",
+                    )}
+                    title={bg.label}
+                  >
+                    <span
+                      className="block h-5 w-5 rounded-full border border-ink-200/60"
+                      style={{ backgroundColor: bg.color }}
+                    />
+                    <span className="text-[10px] text-ink-500">{bg.label}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
         </section>
 
         {/* AI 配图 */}
