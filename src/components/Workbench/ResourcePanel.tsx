@@ -9,7 +9,15 @@ import { useCopybookStore } from "@/store/useCopybookStore";
 import { cn } from "@/lib/utils";
 import type { ResourceCategory } from "@/types";
 
-const CATEGORY_ORDER: ResourceCategory[] = ["primer", "poetry", "medicine"];
+const CATEGORY_ORDER: ResourceCategory[] = [
+  "primer",
+  "poetry",
+  "classics",
+  "medicine",
+  "mathematics",
+  "astronomy",
+  "daoist",
+];
 
 export default function ResourcePanel() {
   const resourceId = useCopybookStore((s) => s.config.resourceId);
@@ -120,7 +128,7 @@ export default function ResourcePanel() {
       </div>
 
       <div className="border-t border-ink-200/60 bg-paper/60 px-4 py-3 text-[11px] leading-relaxed text-ink-500">
-        共 {RESOURCES.length} 部典籍 · 7 类经典
+        共 {RESOURCES.length} 部典籍 · {CATEGORY_ORDER.length} 类经典
         <br />
         可在「设置」中粘贴自定义文本生成字帖
       </div>
