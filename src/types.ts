@@ -1,7 +1,14 @@
 // 字帖生成器核心类型定义
 
-/** 文本分类：蒙学 / 诗词 / 中医 */
-export type ResourceCategory = "primer" | "poetry" | "medicine";
+/** 文本分类：蒙学 / 诗词 / 中医 / 经部 / 算学 / 天文 / 道家 */
+export type ResourceCategory =
+  | "primer"
+  | "poetry"
+  | "medicine"
+  | "classics"
+  | "mathematics"
+  | "astronomy"
+  | "daoist";
 
 /** 内置文本资源 */
 export interface TextResource {
